@@ -126,6 +126,22 @@
             right: 75vw;
         }
 
+        /* Estilo para la etiqueta de ¡Nuevo! */
+        .badge-nuevo {
+            position: absolute;
+            top: -10px;      /* Ajusta según qué tan arriba la quieras */
+            left: -10px;     /* Ajusta según qué tan a la izquierda */
+            width: 100px;     /* Tamaño de la etiqueta */
+            z-index: 10;     /* Asegura que esté por encima de las gomitas */
+            pointer-events: none; /* Evita que la etiqueta interfiera con el clic del usuario */
+            transform: rotate(-15px); /* Un pequeño giro para que se vea más dinámico */
+        }
+
+        /* Asegurar que el contenedor tenga posición relativa para que la etiqueta no se mueva de lugar */
+        .image-container {
+            position: relative;
+        }
+
 
     </style>
 </head>
@@ -141,7 +157,7 @@
 
         <div class="menu-item">
             <div class="image-container" onclick="toggleChile(this)">
-                <img src="paleta_pepino.webp" alt="Paletas Normal" class="gummy-img img-normal">
+                <img src="new.webp" class="badge-nuevo" alt="Etiqueta Nuevo"><img src="paleta_pepino.webp" alt="Paletas Normal" class="gummy-img img-normal">
                 <img src="paleta_pepino_enchilado.webp" alt="Aros Enchilados" class="gummy-img img-spicy">
             </div>
             <div class="item-info">
@@ -151,7 +167,7 @@
         </div>
         <div class="menu-item">
             <div class="image-container" onclick="toggleChile(this)">
-                <img src="paleta_pina.webp" alt="Paletas Normal" class="gummy-img img-normal">
+                <img src="new.webp" class="badge-nuevo" alt="Etiqueta Nuevo"><img src="paleta_pina.webp" alt="Paletas Normal" class="gummy-img img-normal">
                 <img src="paleta_pina_enchilada.webp" alt="Aros Enchilados" class="gummy-img img-spicy">
             </div>
             <div class="item-info">
@@ -162,7 +178,7 @@
 
         <div class="menu-item">
             <div class="image-container" onclick="toggleChile(this)">
-                <img src="sonrisas.webp" alt="Sonrisas" class="gummy-img img-normal">
+                <img src="new.webp" class="badge-nuevo" alt="Etiqueta Nuevo"><img src="sonrisas.webp" alt="Sonrisas" class="gummy-img img-normal">
                 <img src="sonrisas_enchiladas.webp" alt="Gomita Enchilada" class="gummy-img img-spicy">
             </div>
             <div class="item-info">
@@ -173,7 +189,7 @@
 
         <div class="menu-item">
             <div class="image-container" onclick="toggleChile(this)">
-                <img src="cherry.webp" alt="Cherry" class="gummy-img img-normal">
+                <img src="new.webp" class="badge-nuevo" alt="Etiqueta Nuevo"><img src="cherry.webp" alt="Cherry" class="gummy-img img-normal">
                 <img src="cherry_enchilada.webp" alt="Gomita Enchilada" class="gummy-img img-spicy">
             </div>
             <div class="item-info">
