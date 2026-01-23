@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Menú Interactivo de Gomitas</title>
+    
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600&display=swap');
+        /* --- ESTILOS GENERALES --- */
+        body {
+            font-family: 'Fredoka', sans-serif;
+            /* Fondo claro para resaltar las transparencias */
+            background: radial-gradient(circle, #ffffff 0%, #f0f0f0 100%);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+            color: #ff4757;
+        }
+
+        header h1 { margin: 0; font-size: 2.5rem; }
+        header p { font-size: 1.2rem; color: #666; margin-top: 10px; }
+
+        /* --- GRID DEL MENÚ --- */
+        .menu-grid {
+            display: grid;
+            /* Ajusta automáticamente las columnas según el ancho de la pantalla */
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 50px; /* Espacio entre productos */
+            max-width: 1200px;
+            width: 100%;
+            padding-bottom: 50px;
+        }
+
+        /* --- ITEM INDIVIDUAL DEL MENÚ --- */
+        .menu-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
+
+        /* --- EL CONTENEDOR DE LAS IMÁGENES ENCIMADAS (IMPORTANTE) --- */
+        .image-container {
+            position: relative; /* Necesario para que las imágenes absolutas se queden aquí dentro */
+            width: 280px;  /* Ancho fijo para asegurar que ambas imágenes cuadren */
+            height: 280px; /* Alto fijo */
+            cursor: pointer;
+            /* Un pequeño efecto al pasar el mouse/dedo para indicar que es interactivo */
+            transition: transform 0.3s ease;
+        }
+        
+        /* Efecto hover ligero */
+        .image-container:hover {
+            transform: scale(1.05);
+        }
+
+        /* Estilos comunes para AMBAS imágenes */
+        .gummy-img {
+            position: absolute; /* Las saca del flujo normal para encimarlas */
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: contain; /* Asegura que la imagen completa se vea sin estirarse */
+            /* La magia de la transición suave: */
+            transition: opacity 0.8s ease-in-out;
+        }
+
+        /* Imagen Normal (Capa inferior) */
+        .img-normal {
+            z-index: 1; /* Nivel de capa bajo */
+            opacity: 1; /* Siempre visible */
+        }
+
+        .img-normal-oculta{
+            opacity: 0;
+        }
+
+        /* Imagen Enchilada (Capa superior) */
+        .img-spicy {
+            z-index: 2; /* Nivel de capa alto (arriba de la normal) */
+            opacity: 0; /* Inicialmente invisible */
+        }
+
+        /* --- ESTADO ACTIVO (Cuando se hace clic) --- */
+        /* Cuando el contenedor tiene la clase 'active', la imagen picante se vuelve visible */
+        .image-container.active .img-spicy {
+            opacity: 1;
+        }
+
+        /* Estilos para el texto debajo de la imagen */
+        .item-info h3 {
+            margin: 20px 0 10px 0;
+            font-size: 1.5rem;
+            color: #333;
+        }
+
+        .price {
+            display: inline-block;
+            padding: 8px 15px;
+            background-color: #ff4757;
+            color: white;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+
+        .logo-img {
+            width: 10vw;
+        }
+
+        .diseno_pagina {
+            position: absolute;
+            width: 50vw;
+            bottom: 25vw;
+            right: 75vw;
+        }
+
+
+    </style>
+</head>
+<body>
+
+    <header>
+        <img src="logo.png" class="logo-img">
+        <h1>Menú de Gomitas</h1>
+        <p>👆 Enchila tu gomita favorita con un clic</p>
+    </header>
+
+    <main class="menu-grid">
+
+        <div class="menu-item">
+            <div class="image-container" onclick="toggleChile(this)">
+                <img src="aros_de_durazno.png" alt="Aros Normal" class="gummy-img img-normal">
+                <img src="aros_de_durazno_enchilado.png" alt="Aros Enchilados" class="gummy-img img-spicy">
+            </div>
+            <div class="item-info">
+                <h3>Aros de Durazno</h3>
+                <span class="price">$40.00</span>
+            </div>
+        </div>
+
+        
+        <div class="menu-item">
+            <div class="image-container" onclick="toggleChile(this)">
+                <img src="aros_de_manzana.png" alt="Aros de Manzana" class="gummy-img img-normal">
+                <img src="aros_de_manzana_enchilados.png" alt="Gusanos Enchilados" class="gummy-img img-spicy">
+            </div>
+            <div class="item-info">
+                <h3>Aros de Manzano</h3>
+                <span class="price">$40.00</span>
+            </div>
+        </div>
+
+        <div class="menu-item">
+            <div class="image-container" onclick="toggleChile(this)">
+                <img src="aros_sandia.png" alt="Aros de Sandia" class="gummy-img img-normal">
+                <img src="aros_sandia_enchilados.png" alt="Gusanos Enchilados" class="gummy-img img-spicy">
+            </div>
+            <div class="item-info">
+                <h3>Aros de Sandía</h3>
+                <span class="price">$40.00</span>
+            </div>
+        </div>
+        <div class="menu-item">
+            <div class="image-container" onclick="toggleChile(this)">
+                <img src="dulce_de_tamarindo.png" alt="Dulce Tamarindo" class="gummy-img img-normal">
+                <img src="dulce_de_tamarindo_enchilado.png" alt="Gomita Enchilada" class="gummy-img img-spicy">
+            </div>
+            <div class="item-info">
+                <h3>Dulce de Tamarindo</h3>
+                <span class="price">$40.00</span>
+            </div>
+        </div>
+        <div class="menu-item">
+            <div class="image-container" onclick="toggleChile(this)">
+                <img src="panditas_gomitas.png" alt="Panditas" class="gummy-img img-normal">
+                <img src="panditas_gomitas_enchiladas.png" alt="Gomita Enchilada" class="gummy-img img-spicy">
+            </div>
+            <div class="item-info">
+                <h3>Panditas</h3>
+                <span class="price">$40.00</span>
+            </div>
+        </div>
+        <div class="menu-item">
+            <div class="image-container" onclick="toggleChile(this)">
+                <img src="tiburones.png" alt="Tiburones" class="gummy-img img-normal">
+                <img src="tiburones_enchilados.png" alt="Gomita Enchilada" class="gummy-img img-spicy">
+            </div>
+            <div class="item-info">
+                <h3>Tiburones</h3>
+                <span class="price">$40.00</span>
+            </div>
+        </div>
+        <div class="menu-item">
+            <div class="image-container" onclick="toggleChile(this)">
+                <img src="sandias.png" alt="Sandías" class="gummy-img img-normal">
+                <img src="sandias_enchiladas.png" alt="Gomita Enchilada" class="gummy-img img-spicy">
+            </div>
+            <div class="item-info">
+                <h3>Sandías</h3>
+                <span class="price">$40.00</span>
+            </div>
+        </div>
+        <div class="menu-item">
+            <div class="image-container" onclick="toggleChile(this)">
+                <img src="manguitos.png" alt="Manguitos" class="gummy-img img-normal">
+                <img src="manguitos_enchilados.png" alt="Gomita Enchilada" class="gummy-img img-spicy">
+            </div>
+            <div class="item-info">
+                <h3>Manguitos</h3>
+                <span class="price">$40.00</span>
+            </div>
+        </div>
+        <div class="menu-item">
+            <div class="image-container" onclick="toggleChile(this)">
+                <img src="lombrices.png" alt="Lombrices" class="gummy-img img-normal">
+                <img src="lombrices_enchilados.png" alt="Gomita Enchilada" class="gummy-img img-spicy">
+            </div>
+            <div class="item-info">
+                <h3>Lombrices</h3>
+                <span class="price">$40.00</span>
+            </div>
+        </div>
+        <div class="menu-item">
+            <div class="image-container" onclick="toggleChile(this)">
+                <img src="frutitas.png" alt="Frutitas" class="gummy-img img-normal">
+                <img src="frutitas_enchiladas.png" alt="Gomita Enchilada" class="gummy-img img-spicy">
+            </div>
+            <div class="item-info">
+                <h3>Frutitas</h3>
+                <span class="price">$40.00</span>
+            </div>
+        </div>
+        <div class="menu-item">
+            <div class="image-container" onclick="toggleChile(this)">
+                <img src="cherry.png" alt="Cherry" class="gummy-img img-normal">
+                <img src="cherry_enchilada.png" alt="Gomita Enchilada" class="gummy-img img-spicy">
+            </div>
+            <div class="item-info">
+                <h3>Cherry</h3>
+                <span class="price">$40.00</span>
+            </div>
+        </div>
+        <div class="menu-item">
+            <div class="image-container" onclick="toggleChile(this)">
+                <img src="picagomas.png" alt="Picagomas" class="gummy-img img-normal">
+                <img src="picagomas_enchiladas.png" alt="Gomita Enchilada" class="gummy-img img-spicy">
+            </div>
+            <div class="item-info">
+                <h3>Picagomas</h3>
+                <span class="price">$40.00</span>
+            </div>
+        </div>
+        <div class="menu-item">
+            <div class="image-container" onclick="toggleChile(this)">
+                <img src="sonrisas.png" alt="Sonrisas" class="gummy-img img-normal">
+                <img src="sonrisas_enchiladas.png" alt="Gomita Enchilada" class="gummy-img img-spicy">
+            </div>
+            <div class="item-info">
+                <h3>Sonrisas</h3>
+                <span class="price">$40.00</span>
+            </div>
+        </div>
+        <div class="menu-item">
+            <div class="image-container" onclick="toggleChile(this)">
+                <img src="skittles.png" alt="Skittles" class="gummy-img img-normal">
+                <img src="skittles_enchilados.png" alt="Gomita Enchilada" class="gummy-img img-spicy">
+            </div>
+            <div class="item-info">
+                <h3>Skittles</h3>
+                <span class="price">$40.00</span>
+            </div>
+        </div>
+        <div class="menu-item">
+            <div class="image-container" onclick="toggleChile(this)">
+                <img src="rellerindos.png" alt="Rellerindos" class="gummy-img img-normal">
+                <img src="rellerindos_enchilados.png" alt="Gomita Enchilada" class="gummy-img img-spicy">
+            </div>
+            <div class="item-info">
+                <h3>Rellerindos</h3>
+                <span class="price">$40.00</span>
+            </div>
+        </div>
+        <div class="menu-item">
+            <div class="image-container" onclick="toggleChile(this)">
+                <img src="aciduladitos.png" alt="Aciduladitos" class="gummy-img img-normal">
+                <img src="aciduladitos_enchilados.png" alt="Gomita Enchilada" class="gummy-img img-spicy">
+            </div>
+            <div class="item-info">
+                <h3>Aciduladitos</h3>
+                <span class="price">$40.00</span>
+            </div>
+        </div>
+        
+    </main>
+    
+    <script>
+        function toggleChile(contenedor) {
+            // 1. Activa la imagen enchilada
+            contenedor.classList.toggle('active');
+            
+            // 2. Busca la imagen normal SOLAMENTE DENTRO de este contenedor
+            const element = contenedor.querySelector(".img-normal"); 
+            
+            // 3. Oculta esa imagen normal específica
+            element.classList.toggle('img-normal-oculta');
+        }
+    </script>
+
+</body>
+</html>
