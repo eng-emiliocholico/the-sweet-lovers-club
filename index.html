@@ -11,10 +11,14 @@
 
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600&display=swap');
-        /* --- ESTILOS GENERALEsS --- */
+        
+        /* --- ESTILOS GENERALES RESPONSIVOS --- */
+        * {
+            box-sizing: border-box;
+        }
+        
         body {
             font-family: 'Fredoka', sans-serif;
-            /* Fondo claro para resaltar las transparencias */
             background: radial-gradient(circle, #ffffff 0%, #f0f0f0 100%);
             margin: 0;
             padding: 20px;
@@ -22,23 +26,55 @@
             flex-direction: column;
             align-items: center;
             min-height: 100vh;
+            width: 100%;
         }
 
         header {
             text-align: center;
-            margin-bottom: 40px;
+            margin-bottom: 30px;
             color: #ff4757;
+            width: 100%;
+            max-width: 1200px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
         }
 
-        header h1 { margin: 0; font-size: 2.5rem; }
-        header p { font-size: 1.2rem; color: #666; margin-top: 10px; }
+        /* --- LOGO MEJORADO Y MÁS GRANDE --- */
+        .logo-img {
+            width: clamp(120px, 25vw, 200px); /* Más grande: 25% del viewport width */
+            height: auto;
+            margin-bottom: 15px;
+            object-fit: contain;
+            transition: transform 0.3s ease;
+        }
+        
+        /* Efecto sutil al pasar el mouse sobre el logo */
+        .logo-img:hover {
+            transform: scale(1.05);
+        }
 
-        /* --- GRID DEL MENÚ --- */
+        header h1 { 
+            margin: 0; 
+            font-size: clamp(2rem, 6vw, 3rem); /* Más grande también */
+            padding: 0 10px;
+            color: #ff4757;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        header p { 
+            font-size: clamp(1.1rem, 3.5vw, 1.4rem); /* Un poco más grande */
+            color: #666; 
+            margin-top: 10px;
+            padding: 0 10px;
+            max-width: 600px;
+        }
+
+        /* --- GRID DEL MENÚ RESPONSIVO --- */
         .menu-grid {
             display: grid;
-            /* Ajusta automáticamente las columnas según el ancho de la pantalla */
             grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 50px; /* Espacio entre productos */
+            gap: 30px;
             max-width: 1200px;
             width: 100%;
             padding-bottom: 50px;
@@ -50,16 +86,24 @@
             flex-direction: column;
             align-items: center;
             text-align: center;
+            padding: 10px;
         }
 
-        /* --- EL CONTENEDOR DE LAS IMÁGENES ENCIMADAS (IMPORTANTE) --- */
+        /* --- CONTENEDOR DE IMÁGENES RESPONSIVO --- */
         .image-container {
-            position: relative; /* Necesario para que las imágenes absolutas se queden aquí dentro */
-            width: 280px;  /* Ancho fijo para asegurar que ambas imágenes cuadren */
-            height: 280px; /* Alto fijo */
+            position: relative;
+            width: 100%;
+            max-width: 280px;
+            aspect-ratio: 1 / 1;
             cursor: pointer;
-            /* Un pequeño efecto al pasar el mouse/dedo para indicar que es interactivo */
             transition: transform 0.3s ease;
+        }
+        
+        /* Para navegadores que no soportan aspect-ratio */
+        .image-container::before {
+            content: '';
+            display: block;
+            padding-top: 100%;
         }
         
         /* Efecto hover ligero */
@@ -69,20 +113,19 @@
 
         /* Estilos comunes para AMBAS imágenes */
         .gummy-img {
-            position: absolute; /* Las saca del flujo normal para encimarlas */
+            position: absolute;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            object-fit: contain; /* Asegura que la imagen completa se vea sin estirarse */
-            /* La magia de la transición suave: */
+            object-fit: contain;
             transition: opacity 0.8s ease-in-out;
         }
 
         /* Imagen Normal (Capa inferior) */
         .img-normal {
-            z-index: 1; /* Nivel de capa bajo */
-            opacity: 1; /* Siempre visible */
+            z-index: 1;
+            opacity: 1;
         }
 
         .img-normal-oculta{
@@ -91,76 +134,155 @@
 
         /* Imagen Enchilada (Capa superior) */
         .img-spicy {
-            z-index: 2; /* Nivel de capa alto (arriba de la normal) */
-            opacity: 0; /* Inicialmente invisible */
+            z-index: 2;
+            opacity: 0;
         }
 
-        /* --- ESTADO ACTIVO (Cuando se hace clic) --- */
-        /* Cuando el contenedor tiene la clase 'active', la imagen picante se vuelve visible */
+        /* --- ESTADO ACTIVO --- */
         .image-container.active .img-spicy {
             opacity: 1;
         }
 
-        /* Estilos para el texto debajo de la imagen */
+        /* --- INFORMACIÓN DEL ITEM RESPONSIVA --- */
         .item-info h3 {
-            margin: 20px 0 10px 0;
-            font-size: 1.5rem;
+            margin: 15px 0 8px 0;
+            font-size: clamp(1.2rem, 4vw, 1.5rem);
             color: #333;
+            line-height: 1.3;
         }
 
         .price {
             display: inline-block;
-            padding: 8px 15px;
+            padding: 6px 12px;
             background-color: #ff4757;
             color: white;
             border-radius: 20px;
             font-weight: 600;
-            font-size: 1.1rem;
+            font-size: clamp(0.9rem, 3vw, 1.1rem);
         }
 
-        .logo-img {
-            width: 10vw;
-        }
-
-        .diseno_pagina {
-            position: absolute;
-            width: 50vw;
-            bottom: 25vw;
-            right: 75vw;
-        }
-
-        /* Estilo para la etiqueta de ¡Nuevo! */
+        /* --- ETIQUETA "¡NUEVO!" RESPONSIVA --- */
         .badge-nuevo {
             position: absolute;
-            top: -10px;      /* Ajusta según qué tan arriba la quieras */
-            left: -10px;     /* Ajusta según qué tan a la izquierda */
-            width: 100px;     /* Tamaño de la etiqueta */
-            z-index: 10;     /* Asegura que esté por encima de las gomitas */
-            pointer-events: none; /* Evita que la etiqueta interfiera con el clic del usuario */
-            transform: rotate(-15px); /* Un pequeño giro para que se vea más dinámico */
+            top: -5px;
+            left: -5px;
+            width: clamp(60px, 15vw, 100px);
+            height: auto;
+            z-index: 10;
+            pointer-events: none;
+            transform: rotate(-15deg);
         }
 
-        /* Asegurar que el contenedor tenga posición relativa para que la etiqueta no se mueva de lugar */
-        .image-container {
-            position: relative;
+        /* --- MEDIA QUERIES ESPECÍFICAS PARA EL LOGO --- */
+        
+        /* Pantallas muy pequeñas (móviles pequeños) */
+        @media (max-width: 350px) {
+            body {
+                padding: 15px;
+            }
+            
+            .logo-img {
+                width: 90px; /* Tamaño fijo mínimo para móviles muy pequeños */
+            }
+            
+            .menu-grid {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+        }
+        
+        /* Móviles en modo retrato */
+        @media (min-width: 351px) and (max-width: 767px) {
+            .logo-img {
+                width: 110px; /* Buen tamaño para móviles normales */
+            }
+        }
+        
+        /* Tabletas y móviles grandes */
+        @media (min-width: 768px) and (max-width: 1024px) {
+            .logo-img {
+                width: 120px; /* Más grande en tablets */
+            }
+            
+            .menu-grid {
+                grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+                gap: 40px;
+            }
+        }
+        
+        /* Escritorio pequeño */
+        @media (min-width: 1025px) and (max-width: 1366px) {
+            .logo-img {
+                width: 135px; /* Tamaño ideal para escritorio */
+            }
+        }
+        
+        /* Escritorio grande */
+        @media (min-width: 1367px) {
+            .logo-img {
+                width: 150px; /* Máximo tamaño */
+            }
+        }
+        
+        /* Para pantallas muy anchas (ultra-wide) */
+        @media (min-width: 1600px) {
+            .logo-img {
+                width: 160px; /* Un poco más para pantallas ultra-wide */
+            }
+            
+            .menu-grid {
+                grid-template-columns: repeat(4, 1fr);
+                max-width: 1400px;
+            }
+        }
+        
+        /* Orientación horizontal en móviles */
+        @media (max-height: 600px) and (orientation: landscape) {
+            header {
+                margin-bottom: 15px;
+                flex-direction: row; /* Logo y texto en fila */
+                justify-content: center;
+                gap: 20px;
+                flex-wrap: wrap;
+            }
+            
+            .logo-img {
+                width: 100px; /* Un poco más pequeño en landscape */
+                margin-bottom: 0;
+            }
+            
+            .menu-grid {
+                grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+                gap: 20px;
+            }
         }
 
+        /* Para cuando el logo es muy alto (formato vertical) */
+        @media (max-width: 480px) and (orientation: portrait) {
+            .logo-img {
+                max-height: 120px; /* Limita la altura en móviles */
+            }
+        }
 
     </style>
 </head>
 <body>
 
     <header>
-        <img src="logo.webp" class="logo-img">
-        <h1>Menú de Gomitas</h1>
-        <p>👆 Enchila tu gomita favorita con un clic</p>
+        <img src="logo.webp" class="logo-img" alt="Logo Gomitas" 
+             onerror="this.onerror=null; this.src='https://via.placeholder.com/200x100/ff4757/ffffff?text=Logo+Gomitas'">
+        <div>
+            <h1>Menú de Gomitas</h1>
+            <p>👆 Enchila tu gomita favorita con un clic</p>
+        </div>
     </header>
 
     <main class="menu-grid">
-
+        <!-- Todos los elementos del menú se mantienen igual que antes -->
         <div class="menu-item">
             <div class="image-container" onclick="toggleChile(this)">
-                <img src="new.webp" class="badge-nuevo" alt="Etiqueta Nuevo"><img src="paleta_pepino.webp" alt="Paletas Normal" class="gummy-img img-normal">
+                <img src="new.webp" class="badge-nuevo" alt="Etiqueta Nuevo">
+                <img src="paleta_pepino.webp" alt="Paletas Normal" class="gummy-img img-normal">
                 <img src="paleta_pepino_enchilado.webp" alt="Aros Enchilados" class="gummy-img img-spicy">
             </div>
             <div class="item-info">
@@ -168,9 +290,12 @@
                 <span class="price">$40.00</span>
             </div>
         </div>
+        
+        <!-- ... resto de los items del menú ... -->
         <div class="menu-item">
             <div class="image-container" onclick="toggleChile(this)">
-                <img src="new.webp" class="badge-nuevo" alt="Etiqueta Nuevo"><img src="paleta_pina.webp" alt="Paletas Normal" class="gummy-img img-normal">
+                <img src="new.webp" class="badge-nuevo" alt="Etiqueta Nuevo">
+                <img src="paleta_pina.webp" alt="Paletas Normal" class="gummy-img img-normal">
                 <img src="paleta_pina_enchilada.webp" alt="Aros Enchilados" class="gummy-img img-spicy">
             </div>
             <div class="item-info">
@@ -181,7 +306,8 @@
 
         <div class="menu-item">
             <div class="image-container" onclick="toggleChile(this)">
-                <img src="new.webp" class="badge-nuevo" alt="Etiqueta Nuevo"><img src="sonrisas.webp" alt="Sonrisas" class="gummy-img img-normal">
+                <img src="new.webp" class="badge-nuevo" alt="Etiqueta Nuevo">
+                <img src="sonrisas.webp" alt="Sonrisas" class="gummy-img img-normal">
                 <img src="sonrisas_enchiladas.webp" alt="Gomita Enchilada" class="gummy-img img-spicy">
             </div>
             <div class="item-info">
@@ -192,7 +318,8 @@
 
         <div class="menu-item">
             <div class="image-container" onclick="toggleChile(this)">
-                <img src="new.webp" class="badge-nuevo" alt="Etiqueta Nuevo"><img src="cherry.webp" alt="Cherry" class="gummy-img img-normal">
+                <img src="new.webp" class="badge-nuevo" alt="Etiqueta Nuevo">
+                <img src="cherry.webp" alt="Cherry" class="gummy-img img-normal">
                 <img src="cherry_enchilada.webp" alt="Gomita Enchilada" class="gummy-img img-spicy">
             </div>
             <div class="item-info">
@@ -212,7 +339,6 @@
             </div>
         </div>
 
-        
         <div class="menu-item">
             <div class="image-container" onclick="toggleChile(this)">
                 <img src="aros_de_manzana.webp" alt="Aros de Manzana" class="gummy-img img-normal">
@@ -234,6 +360,7 @@
                 <span class="price">$40.00</span>
             </div>
         </div>
+        
         <div class="menu-item">
             <div class="image-container" onclick="toggleChile(this)">
                 <img src="dulce_de_tamarindo.webp" alt="Dulce Tamarindo" class="gummy-img img-normal">
@@ -244,6 +371,7 @@
                 <span class="price">$40.00</span>
             </div>
         </div>
+        
         <div class="menu-item">
             <div class="image-container" onclick="toggleChile(this)">
                 <img src="panditas_gomitas.webp" alt="Panditas" class="gummy-img img-normal">
@@ -254,6 +382,7 @@
                 <span class="price">$40.00</span>
             </div>
         </div>
+        
         <div class="menu-item">
             <div class="image-container" onclick="toggleChile(this)">
                 <img src="tiburones.webp" alt="Tiburones" class="gummy-img img-normal">
@@ -264,6 +393,7 @@
                 <span class="price">$40.00</span>
             </div>
         </div>
+        
         <div class="menu-item">
             <div class="image-container" onclick="toggleChile(this)">
                 <img src="sandias.webp" alt="Sandías" class="gummy-img img-normal">
@@ -274,6 +404,7 @@
                 <span class="price">$40.00</span>
             </div>
         </div>
+        
         <div class="menu-item">
             <div class="image-container" onclick="toggleChile(this)">
                 <img src="manguitos.webp" alt="Manguitos" class="gummy-img img-normal">
@@ -284,6 +415,7 @@
                 <span class="price">$40.00</span>
             </div>
         </div>
+        
         <div class="menu-item">
             <div class="image-container" onclick="toggleChile(this)">
                 <img src="lombrices.webp" alt="Lombrices" class="gummy-img img-normal">
@@ -294,6 +426,7 @@
                 <span class="price">$40.00</span>
             </div>
         </div>
+        
         <div class="menu-item">
             <div class="image-container" onclick="toggleChile(this)">
                 <img src="frutitas.webp" alt="Frutitas" class="gummy-img img-normal">
@@ -326,6 +459,7 @@
                 <span class="price">$40.00</span>
             </div>
         </div>
+        
         <div class="menu-item">
             <div class="image-container" onclick="toggleChile(this)">
                 <img src="rellerindos.webp" alt="Rellerindos" class="gummy-img img-normal">
@@ -336,6 +470,7 @@
                 <span class="price">$40.00</span>
             </div>
         </div>
+        
         <div class="menu-item">
             <div class="image-container" onclick="toggleChile(this)">
                 <img src="aciduladitos.webp" alt="Aciduladitos" class="gummy-img img-normal">
@@ -351,15 +486,29 @@
     
     <script>
         function toggleChile(contenedor) {
-            // 1. Activa la imagen enchilada
             contenedor.classList.toggle('active');
-            
-            // 2. Busca la imagen normal SOLAMENTE DENTRO de este contenedor
             const element = contenedor.querySelector(".img-normal"); 
-            
-            // 3. Oculta esa imagen normal específica
             element.classList.toggle('img-normal-oculta');
         }
+        
+        // Mejora adicional: Redimensionar logo dinámicamente si es necesario
+        // window.addEventListener('resize', function() {
+        //     const logo = document.querySelector('.logo-img');
+        //     const screenWidth = window.innerWidth;
+            
+        //     // Ajuste dinámico extra si es necesario
+        //     if (screenWidth < 400) {
+        //         logo.style.width = '100px';
+        //     } else if (screenWidth < 768) {
+        //         logo.style.width = '140px';
+        //     } else if (screenWidth < 1024) {
+        //         logo.style.width = '150px';
+        //     } else {
+        //         logo.style.width = ''; // Vuelve al CSS por defecto
+        //     }
+        // });
+        
+        document.addEventListener('touchstart', function() {}, true);
     </script>
 
 </body>
