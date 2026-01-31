@@ -264,6 +264,17 @@
             }
         }
 
+        .menu-item.agotado .price {
+            background-color: #999; /* Cambia el color rojo a gris */
+            font-size: 0; /* Escondemos el texto original ($40.00) */
+        }
+
+        .menu-item.agotado .price::after {
+            content: "No disponible"; /* Insertamos el nuevo texto */
+            font-size: 0.9rem; /* Le devolvemos un tamaño de fuente visible */
+            display: block;
+        }
+
     </style>
 </head>
 <body>
@@ -427,7 +438,7 @@
             </div>
         </div>
         
-        <div class="menu-item">
+        <div class="menu-item agotado">
             <div class="image-container" onclick="toggleChile(this)">
                 <img src="frutitas.webp" alt="Frutitas" class="gummy-img img-normal">
                 <img src="frutitas_enchiladas.webp" alt="Gomita Enchilada" class="gummy-img img-spicy">
@@ -456,7 +467,7 @@
             </div>
             <div class="item-info">
                 <h3>Skittles</h3>
-                <span class="price">$40.00</span>
+                <span class="price">$45.00</span>
             </div>
         </div>
         
