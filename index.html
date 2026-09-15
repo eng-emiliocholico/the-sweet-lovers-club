@@ -1018,7 +1018,7 @@
 <p>¡Bienvenido al <span class="accent">Club de los Amantes del Dulce</span>! ♡</p>
 </div>
 <h1 class="intro-title"><span class="brand-the">The</span> <span class="brand-sweet">Sweet</span> <em class="brand-lovers">Lovers</em> <span class="brand-club">Club</span></h1>
-<p class="intro-sub">Aquí cada gomita tiene dos caras: la dulce y la enchilada. Antes de decidir cuál va contigo, abramos el telón.</p>
+<p class="intro-sub">Aquí cada gomita tiene dos caras: la dulce y la enchilada. <br> Antes de decidir cuál va contigo, abramos el telón.</p>
 <button class="enter-btn" id="enterBtn" type="button">Entrar al club</button>
 </div>
 </section>
@@ -1471,7 +1471,9 @@ function lanzarPolvitoChile(contenedor) {
 
             const FIRST_DELAY = 5000;  // primera aparición: 5 s después de entrar al menú
             const VISIBLE_TIME = 10000; // duración total del GIF en cada aparición
-            const TRIM_TIME = 750;     // oculta 1 s al inicio y 1 s al final en los GIF inferiores
+            const TRIM_TIME_RIGHT_BOTTOM_START = 1100; // recorte al INICIO del GIF inferior derecho
+            const TRIM_TIME_RIGHT_BOTTOM_END = 150;   // recorte al FINAL del GIF inferior derecho
+            const TRIM_TIME_LEFT_BOTTOM = 850;         // recorte igual al inicio/final del GIF inferior izquierdo
             const GAP_TIME = 6000;      // espera 6 s antes del siguiente
 
             let running = false;
@@ -1490,6 +1492,24 @@ function lanzarPolvitoChile(contenedor) {
             function isBottomGif(el) {
                 return el.classList.contains('gif-right-bottom') ||
                        el.classList.contains('gif-left-bottom');
+            }
+
+            function getTrimTimes(el) {
+                if (el.classList.contains('gif-right-bottom')) {
+                    return {
+                        start: TRIM_TIME_RIGHT_BOTTOM_START,
+                        end: TRIM_TIME_RIGHT_BOTTOM_END
+                    };
+                }
+
+                if (el.classList.contains('gif-left-bottom')) {
+                    return {
+                        start: TRIM_TIME_LEFT_BOTTOM,
+                        end: TRIM_TIME_LEFT_BOTTOM
+                    };
+                }
+
+                return { start: 0, end: 0 };
             }
 
             function unload(el) {
@@ -1522,6 +1542,7 @@ function lanzarPolvitoChile(contenedor) {
                 const current = appearances[index];
                 const img = current.querySelector('img');
                 const trimmed = isBottomGif(current);
+                const trimTimes = getTrimTimes(current);
 
                 // Cargar el GIF reinicia su reproducción desde el principio.
                 if (img && !img.hasAttribute('src')) {
@@ -1537,10 +1558,9 @@ function lanzarPolvitoChile(contenedor) {
 
                 if (trimmed) {
                     /*
-                       Los dos GIF inferiores:
-                       0–1 s   = ocultos, pero el GIF ya se está reproduciendo.
-                       1–9 s   = visibles.
-                       9–10 s  = ocultos mientras termina el GIF.
+                       Cada GIF inferior puede tener recortes distintos.
+                       El GIF derecho usa tiempos separados para entrada y salida.
+                       El GIF izquierdo conserva un mismo valor para ambos extremos.
                     */
                     current.classList.add('is-trim-hidden');
 
@@ -1548,12 +1568,12 @@ function lanzarPolvitoChile(contenedor) {
                         if (!running || document.hidden) return;
                         current.classList.remove('is-trim-hidden');
                         current.classList.add('is-visible');
-                    }, TRIM_TIME);
+                    }, trimTimes.start);
 
                     hideTimer = window.setTimeout(() => {
                         current.classList.add('is-trim-hidden');
                         current.classList.remove('is-visible');
-                    }, VISIBLE_TIME - TRIM_TIME);
+                    }, VISIBLE_TIME - trimTimes.end);
 
                     timer = window.setTimeout(() => {
                         finishCurrent(current);
