@@ -76,7 +76,7 @@
             align-items: center;
             justify-content: center;
             overflow: hidden;
-            background: radial-gradient(circle at 50% 18%, #FFFDFB 0%, #FFF1F5 48%, #FFE5EC 100%);
+            background: radial-gradient(circle at 50% 18%, #FFFDF9 0%, #FFF8F2 48%, #FCEFE7 100%);
         }
 
         .curtain {
@@ -87,10 +87,10 @@
             z-index: 3;
             background:
                 repeating-linear-gradient(90deg,
-                    #F8AEC0 0px, #F8AEC0 18px,
-                    #FBC6D2 18px, #FBC6D2 36px,
-                    #F7A0B5 36px, #F7A0B5 52px);
-            box-shadow: inset 0 0 46px rgba(255,255,255,0.30), inset 0 0 14px rgba(186,94,124,0.10);
+                    #FFFDF9 0px, #FFFDF9 18px,
+                    #FFF6EF 18px, #FFF6EF 36px,
+                    #FCEDE6 36px, #FCEDE6 52px);
+            box-shadow: inset 0 0 46px rgba(255,255,255,0.52), inset 0 0 14px rgba(180,130,105,0.08);
             transition: transform 1.15s cubic-bezier(.77,0,.18,1);
         }
 
@@ -105,9 +105,9 @@
             top: 0; left: 0; right: 0;
             height: 64px;
             z-index: 4;
-            background: linear-gradient(180deg, #FFD9E2, #F7A7B9);
+            background: linear-gradient(180deg, #FFF9F4, #F8E9DF);
             border-radius: 0 0 50% 50% / 0 0 22px 22px;
-            box-shadow: 0 6px 18px rgba(185,105,132,0.18);
+            box-shadow: 0 6px 18px rgba(171,125,104,0.12);
             transition: opacity 0.5s ease;
         }
 
@@ -220,7 +220,7 @@
 
         .intro-sub {
             font-size: clamp(0.95rem, 3vw, 1.05rem);
-            color: var(--cream-dim);
+            color: rgba(107, 68, 82, 0.82);
             margin: 0 0 26px;
             line-height: 1.5;
         }
@@ -1469,10 +1469,10 @@ function lanzarPolvitoChile(contenedor) {
 
             if (!appearances.length) return;
 
-            const FIRST_DELAY = 10000; // primera aparición: 10 s después de entrar al menú
+            const FIRST_DELAY = 5000;  // primera aparición: 5 s después de entrar al menú
             const VISIBLE_TIME = 10000; // duración total del GIF en cada aparición
             const TRIM_TIME = 750;     // oculta 1 s al inicio y 1 s al final en los GIF inferiores
-            const GAP_TIME = 12000;     // espera 12 s antes del siguiente
+            const GAP_TIME = 6000;      // espera 6 s antes del siguiente
 
             let running = false;
             let index = 0;
