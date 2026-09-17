@@ -1566,9 +1566,8 @@ function lanzarPolvitoChile(contenedor) {
 
         document.addEventListener('touchstart', function () {}, true);
 
-        // --- GIFs del menú: loop ligero y carga bajo demanda ---
+        // --- GIFs del menú: tiempos totalmente independientes ---
         (function () {
-            // Orden del loop: arriba derecha -> abajo derecha -> abajo izquierda.
             const appearances = [
                 document.getElementById('gifRightTop'),
                 document.getElementById('gifRightBottom'),
@@ -1577,139 +1576,211 @@ function lanzarPolvitoChile(contenedor) {
 
             if (!appearances.length) return;
 
-            const FIRST_DELAY = 5000;  // primera aparición: 5 s después de entrar al menú
-            const VISIBLE_TIME = 10000; // duración total del GIF en cada aparición
-            const TRIM_TIME_RIGHT_BOTTOM_START = 1100; // recorte al INICIO del GIF inferior derecho
-            const TRIM_TIME_RIGHT_BOTTOM_END = 150;   // recorte al FINAL del GIF inferior derecho
-            const TRIM_TIME_LEFT_BOTTOM = 850;         // recorte igual al inicio/final del GIF inferior izquierdo
-            const GAP_TIME = 6000;      // espera 6 s antes del siguiente
+            const FIRST_DELAY = 5000;
+            const GAP_TIME = 6000;
+
+            /* ==========================================================
+               CONFIGURACIÓN INDIVIDUAL DE CADA GIF
+
+               duration = duración base antes de pasar al siguiente
+               start    = tiempo oculto al inicio
+               end      = tiempo oculto al final
+
+               REGLA ESPECIAL:
+               Si end = 0, NO se oculta al llegar a "duration".
+               Permanece visible durante GAP_TIME y solo desaparece
+               justo cuando va a comenzar el siguiente GIF.
+               ========================================================== */
+
+            const GIF_TIMINGS = {
+                gifRightTop: {
+                    duration: 10000,
+                    start: 0,
+                    end: 0
+                },
+
+                gifRightBottom: {
+                    duration: 10000,
+                    start: 1500,
+                    end: 0
+                },
+
+                gifLeftBottom: {
+                    duration: 10000,
+                    start: 850,
+                    end: 50
+                }
+            };
 
             let running = false;
             let index = 0;
-            let timer = 0;
+            let mainTimer = 0;
             let revealTimer = 0;
             let hideTimer = 0;
+            let currentVisible = null;
 
             function clearGifTimers() {
-                clearTimeout(timer);
+                clearTimeout(mainTimer);
                 clearTimeout(revealTimer);
                 clearTimeout(hideTimer);
-                timer = revealTimer = hideTimer = 0;
+
+                mainTimer = 0;
+                revealTimer = 0;
+                hideTimer = 0;
             }
 
-            function isBottomGif(el) {
-                return el.classList.contains('gif-right-bottom') ||
-                       el.classList.contains('gif-left-bottom');
+            function getTiming(el) {
+                const config = GIF_TIMINGS[el.id] || {
+                    duration: 10000,
+                    start: 0,
+                    end: 0
+                };
+
+                const duration = Math.max(250, Number(config.duration) || 10000);
+                const start = Math.max(0, Number(config.start) || 0);
+                const end = Math.max(0, Number(config.end) || 0);
+
+                return {
+                    duration,
+                    start: Math.min(start, Math.max(0, duration - 100)),
+                    end: Math.min(end, Math.max(0, duration - 100))
+                };
             }
 
-            function getTrimTimes(el) {
-                if (el.classList.contains('gif-right-bottom')) {
-                    return {
-                        start: TRIM_TIME_RIGHT_BOTTOM_START,
-                        end: TRIM_TIME_RIGHT_BOTTOM_END
-                    };
-                }
-
-                if (el.classList.contains('gif-left-bottom')) {
-                    return {
-                        start: TRIM_TIME_LEFT_BOTTOM,
-                        end: TRIM_TIME_LEFT_BOTTOM
-                    };
-                }
-
-                return { start: 0, end: 0 };
+            function isTrimmedGif(el) {
+                const t = getTiming(el);
+                return t.start > 0 || t.end > 0;
             }
 
             function unload(el) {
+                if (!el) return;
+
                 el.classList.remove('is-visible', 'is-trim-hidden');
+
                 const img = el.querySelector('img');
-                if (img) img.removeAttribute('src');
+                if (img) {
+                    img.removeAttribute('src');
+                }
+
+                if (currentVisible === el) {
+                    currentVisible = null;
+                }
             }
 
-            function hideAll() {
-                appearances.forEach(unload);
+            function hideAllExcept(except = null) {
+                appearances.forEach(el => {
+                    if (el !== except) unload(el);
+                });
             }
 
-            function schedule(delay) {
-                clearTimeout(timer);
-                timer = window.setTimeout(playNext, delay);
+            function scheduleNext(delay) {
+                clearTimeout(mainTimer);
+                mainTimer = window.setTimeout(playNext, delay);
             }
 
-            function finishCurrent(current) {
-                unload(current);
-                index = (index + 1) % appearances.length;
-                schedule(GAP_TIME);
+            async function prepareGif(el) {
+                const img = el.querySelector('img');
+                if (!img) return;
+
+                // Siempre reiniciamos el GIF desde el primer cuadro.
+                img.removeAttribute('src');
+
+                if (isTrimmedGif(el)) {
+                    el.classList.add('is-trim-hidden');
+                }
+
+                // Fuerza al navegador a registrar la eliminación antes de recargar.
+                void img.offsetWidth;
+
+                img.src = img.dataset.src;
+
+                try {
+                    await img.decode();
+                } catch (_) {
+                    // La carga normal del GIF es suficiente si decode() no está disponible.
+                }
             }
 
             async function playNext() {
                 if (!running || document.hidden) return;
 
                 clearGifTimers();
-                hideAll();
+
+                // El GIF anterior con end=0 se mantiene durante el GAP.
+                // Aquí sí se elimina, justo antes de iniciar el siguiente.
+                hideAllExcept(null);
 
                 const current = appearances[index];
-                const img = current.querySelector('img');
-                const trimmed = isBottomGif(current);
-                const trimTimes = getTrimTimes(current);
+                const timing = getTiming(current);
 
-                // Cargar el GIF reinicia su reproducción desde el principio.
-                if (img && !img.hasAttribute('src')) {
-                    if (trimmed) current.classList.add('is-trim-hidden');
-                    img.src = img.dataset.src;
-                    try { await img.decode(); } catch (_) { /* GIF listo por carga normal */ }
-                }
+                await prepareGif(current);
 
                 if (!running || document.hidden) {
                     unload(current);
                     return;
                 }
 
-                if (trimmed) {
-                    /*
-                       Cada GIF inferior puede tener recortes distintos.
-                       El GIF derecho usa tiempos separados para entrada y salida.
-                       El GIF izquierdo conserva un mismo valor para ambos extremos.
-                    */
+                currentVisible = current;
+
+                // Inicio individual.
+                if (timing.start > 0) {
                     current.classList.add('is-trim-hidden');
 
                     revealTimer = window.setTimeout(() => {
                         if (!running || document.hidden) return;
+
                         current.classList.remove('is-trim-hidden');
                         current.classList.add('is-visible');
-                    }, trimTimes.start);
+                    }, timing.start);
+                } else {
+                    current.classList.remove('is-trim-hidden');
+                    current.classList.add('is-visible');
+                }
 
+                // Salida individual.
+                // MUY IMPORTANTE: si end === 0, NO EXISTE temporizador de corte.
+                if (timing.end > 0) {
                     hideTimer = window.setTimeout(() => {
                         current.classList.add('is-trim-hidden');
                         current.classList.remove('is-visible');
-                    }, VISIBLE_TIME - trimTimes.end);
-
-                    timer = window.setTimeout(() => {
-                        finishCurrent(current);
-                    }, VISIBLE_TIME);
-                } else {
-                    // El GIF superior conserva sus 10 segundos completos.
-                    current.classList.add('is-visible');
-
-                    timer = window.setTimeout(() => {
-                        finishCurrent(current);
-                    }, VISIBLE_TIME);
+                    }, Math.max(timing.start, timing.duration - timing.end));
                 }
+
+                mainTimer = window.setTimeout(() => {
+                    const keepUntilNext = timing.end === 0;
+
+                    if (!keepUntilNext) {
+                        unload(current);
+                    }
+
+                    index = (index + 1) % appearances.length;
+
+                    // Si end=0, el GIF actual seguirá visible durante esta espera.
+                    scheduleNext(GAP_TIME);
+                }, timing.duration);
             }
 
             function startGifCycle() {
                 if (running) return;
+
                 running = true;
-                schedule(FIRST_DELAY);
+                scheduleNext(FIRST_DELAY);
             }
 
-            // Solo inicia después de cerrar la portada y mostrar el menú.
-            window.addEventListener('sweetclub:opened', startGifCycle, { once: true });
+            window.addEventListener(
+                'sweetclub:opened',
+                startGifCycle,
+                { once: true }
+            );
 
-            // Ahorro adicional cuando la pestaña/app queda en segundo plano.
             document.addEventListener('visibilitychange', () => {
                 clearGifTimers();
-                hideAll();
-                if (!document.hidden && running) schedule(GAP_TIME);
+
+                appearances.forEach(unload);
+
+                if (!document.hidden && running) {
+                    scheduleNext(GAP_TIME);
+                }
             });
         })();
     </script>
