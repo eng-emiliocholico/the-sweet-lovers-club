@@ -899,6 +899,94 @@
             line-height: 1.2;
         }
 
+        /* Controles avanzados del administrador:
+           orden, distintivo y presentación/modelo. */
+        .admin-product {
+            display: block;
+        }
+
+        .admin-product-top {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+        }
+
+        .admin-product-controls {
+            display: grid;
+            grid-template-columns: auto minmax(118px, 1fr) minmax(138px, 1.15fr);
+            gap: 8px;
+            align-items: center;
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px dashed rgba(233, 93, 131, .13);
+        }
+
+        .admin-order-controls {
+            display: inline-flex;
+            gap: 5px;
+        }
+
+        .admin-order-btn {
+            width: 34px;
+            height: 34px;
+            border: 1px solid rgba(107, 68, 82, .15);
+            border-radius: 10px;
+            background: #FFF9FB;
+            color: var(--ink);
+            font: inherit;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        .admin-order-btn:disabled {
+            opacity: .35;
+            cursor: default;
+        }
+
+        .admin-select {
+            width: 100%;
+            min-height: 36px;
+            padding: 7px 28px 7px 9px;
+            border: 1px solid rgba(107, 68, 82, .16);
+            border-radius: 10px;
+            background: #fff;
+            color: var(--ink);
+            font: inherit;
+            font-size: .78rem;
+            font-weight: 600;
+            outline: none;
+        }
+
+        .admin-select:focus {
+            border-color: var(--pink);
+            box-shadow: 0 0 0 2px rgba(247, 127, 158, .10);
+        }
+
+        .admin-control-caption {
+            display: block;
+            margin: 0 0 4px;
+            color: rgba(107, 68, 82, .58);
+            font-size: .67rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .04em;
+        }
+
+        .admin-control-group {
+            min-width: 0;
+        }
+
+        @media (max-width: 480px) {
+            .admin-product-controls {
+                grid-template-columns: auto 1fr;
+            }
+
+            .admin-control-group.admin-variant-group {
+                grid-column: 1 / -1;
+            }
+        }
+
         .stock-toggle {
             flex: 0 0 auto;
             display: inline-flex;
@@ -1047,8 +1135,8 @@
 <div class="menu-item" data-product-id="corazones">
 <div class="image-container" onclick="toggleChile(this)">
 <img alt="Etiqueta Importado" class="badge-nuevo" src="temporada.webp"/>
-<img alt="Aciduladitos" class="gummy-img img-normal" src="corazones.webp"/>
-<img alt="Gomita Enchilada" class="gummy-img img-spicy" src="corazones_enchilados.webp"/>
+<img alt="Corazones" class="gummy-img img-normal" src="corazones.webp"/>
+<img alt="Corazones Enchilados" class="gummy-img img-spicy" src="corazones_enchilados.webp"/>
 </div>
 <div class="item-info">
 <h3>Corazones</h3>
@@ -1058,8 +1146,8 @@
 <div class="menu-item agotado" data-product-id="sour-patch-sandia">
 <div class="image-container" onclick="toggleChile(this)">
 <img alt="Etiqueta Importado" class="badge-nuevo" src="producto-importado.webp"/>
-<img alt="Aciduladitos" class="gummy-img img-normal" src="sour-patch-sandia.webp"/>
-<img alt="Gomita Enchilada" class="gummy-img img-spicy" src="sour-patch-sandia-enchilados.webp"/>
+<img alt="Sour Patch Sandia" class="gummy-img img-normal" src="sour-patch-sandia.webp"/>
+<img alt="Sour Patch Sandia Enchilados" class="gummy-img img-spicy" src="sour-patch-sandia-enchilados.webp"/>
 </div>
 <div class="item-info">
 <h3>Sour Patch Sandia</h3>
@@ -1069,8 +1157,8 @@
 <div class="menu-item" data-product-id="pescaditos">
 <div class="image-container" onclick="toggleChile(this)">
 <img alt="Etiqueta Importado" class="badge-nuevo" src="producto-importado.webp"/>
-<img alt="Aciduladitos" class="gummy-img img-normal" src="pescaditos.webp"/>
-<img alt="Gomita Enchilada" class="gummy-img img-spicy" src="pescaditos-enchilados.webp"/>
+<img alt="Pescaditos" class="gummy-img img-normal" src="pescaditos.webp"/>
+<img alt="Pescaditos Enchilados" class="gummy-img img-spicy" src="pescaditos-enchilados.webp"/>
 </div>
 <div class="item-info">
 <h3>Pescaditos</h3>
@@ -1080,8 +1168,8 @@
 <div class="menu-item" data-product-id="sour-patch">
 <div class="image-container" onclick="toggleChile(this)">
 <img alt="Etiqueta Importado" class="badge-nuevo" src="producto-importado.webp"/>
-<img alt="Aciduladitos" class="gummy-img img-normal" src="sour-patch.webp"/>
-<img alt="Gomita Enchilada" class="gummy-img img-spicy" src="sour-patch-enchilados.webp"/>
+<img alt="Sour Patch" class="gummy-img img-normal" src="sour-patch.webp"/>
+<img alt="Sour Patch Enchilados" class="gummy-img img-spicy" src="sour-patch-enchilados.webp"/>
 </div>
 <div class="item-info">
 <h3>Sour Patch</h3>
@@ -1091,8 +1179,8 @@
 <div class="menu-item agotado" data-product-id="arcoiris">
 <div class="image-container" onclick="toggleChile(this)">
 <img alt="Etiqueta Importado" class="badge-nuevo" src="producto-importado.webp"/>
-<img alt="Aciduladitos" class="gummy-img img-normal" src="arcoiris.webp"/>
-<img alt="Gomita Enchilada" class="gummy-img img-spicy" src="arcoiris_enchilados.webp"/>
+<img alt="Arcoiris" class="gummy-img img-normal" src="arcoiris.webp"/>
+<img alt="Arcoiris Enchilados" class="gummy-img img-spicy" src="arcoiris_enchilados.webp"/>
 </div>
 <div class="item-info">
 <h3>Arcoiris</h3>
@@ -1103,7 +1191,7 @@
 <div class="image-container" onclick="toggleChile(this)">
 <img alt="Etiqueta Importado" class="badge-nuevo" src="producto-importado.webp"/>
 <img alt="Skittles" class="gummy-img img-normal" src="skittles.webp"/>
-<img alt="Gomita Enchilada" class="gummy-img img-spicy" src="skittles_enchilados.webp"/>
+<img alt="Skittles Enchilados" class="gummy-img img-spicy" src="skittles_enchilados.webp"/>
 </div>
 <div class="item-info">
 <h3>Skittles</h3>
@@ -1113,8 +1201,8 @@
 <div class="menu-item" data-product-id="cherry">
 <div class="image-container" onclick="toggleChile(this)">
 <img alt="Etiqueta Nuevo" class="badge-nuevo" src="new.webp"/>
-<img alt="Cherry" class="gummy-img img-normal" src="cherry.webp"/>
-<img alt="Gomita Enchilada" class="gummy-img img-spicy" src="cherry_enchilada.webp"/>
+<img alt="Cherrys" class="gummy-img img-normal" src="cherry.webp"/>
+<img alt="Cherrys Enchiladas" class="gummy-img img-spicy" src="cherry_enchilada.webp"/>
 </div>
 <div class="item-info">
 <h3>Cherry</h3>
@@ -1124,8 +1212,8 @@
 <div class="menu-item" data-product-id="fresas">
 <div class="image-container" onclick="toggleChile(this)">
 <img alt="Etiqueta Nuevo" class="badge-nuevo" src="new.webp"/>
-<img alt="Aciduladitos" class="gummy-img img-normal" src="fresas.webp"/>
-<img alt="Gomita Enchilada" class="gummy-img img-spicy" src="fresas-enchiladas.webp"/>
+<img alt="Fresas" class="gummy-img img-normal" src="fresas.webp"/>
+<img alt="Fresas Enchiladas" class="gummy-img img-spicy" src="fresas-enchiladas.webp"/>
 </div>
 <div class="item-info">
 <h3>Fresas</h3>
@@ -1135,8 +1223,8 @@
 <div class="menu-item" data-product-id="winis">
 <div class="image-container" onclick="toggleChile(this)">
 <img alt="Etiqueta Nuevo" class="badge-nuevo" src="new.webp"/>
-<img alt="Aciduladitos" class="gummy-img img-normal" src="winis.webp"/>
-<img alt="Gomita Enchilada" class="gummy-img img-spicy" src="winis-enchilados.webp"/>
+<img alt="Winis" class="gummy-img img-normal" src="winis.webp"/>
+<img alt="Winis Enchilada" class="gummy-img img-spicy" src="winis-enchilados.webp"/>
 </div>
 <div class="item-info">
 <h3>Winis</h3>
@@ -1145,8 +1233,8 @@
 </div>
 <div class="menu-item" data-product-id="paleta-pepino">
 <div class="image-container" onclick="toggleChile(this)">
-<img alt="Paletas Normal" class="gummy-img img-normal" src="paleta_pepino.webp"/>
-<img alt="Aros Enchilados" class="gummy-img img-spicy" src="paleta_pepino_enchilado.webp"/>
+<img alt="Paletas de Pepino" class="gummy-img img-normal" src="paleta_pepino.webp"/>
+<img alt="Paletas de Pepino Enchilados" class="gummy-img img-spicy" src="paleta_pepino_enchilado.webp"/>
 </div>
 <div class="item-info">
 <h3>Paleta de Pepino</h3>
@@ -1155,18 +1243,28 @@
 </div>
 <div class="menu-item" data-product-id="paleta-pina">
 <div class="image-container" onclick="toggleChile(this)">
-<img alt="Paletas Normal" class="gummy-img img-normal" src="paleta_pina.webp"/>
-<img alt="Aros Enchilados" class="gummy-img img-spicy" src="paleta_pina_enchilada.webp"/>
+<img alt="Paletas de Piña" class="gummy-img img-normal" src="paleta_pina.webp"/>
+<img alt="Paletas de Piña Enchilados" class="gummy-img img-spicy" src="paleta_pina_enchilada.webp"/>
 </div>
 <div class="item-info">
 <h3>Paleta de Piña</h3>
 <span class="price">$40.00</span>
 </div>
 </div>
+<div class="menu-item" data-product-id="paleta-mango">
+<div class="image-container" onclick="toggleChile(this)">
+<img alt="Paletas de Mango" class="gummy-img img-normal" src="paleta_mango.webp"/>
+<img alt="Paletas de Mango Enchilados" class="gummy-img img-spicy" src="paleta_mango_enchilado.webp"/>
+</div>
+<div class="item-info">
+<h3>Paletas de Mango</h3>
+<span class="price">$40.00</span>
+</div>
+</div>
 <div class="menu-item" data-product-id="sonrisas">
 <div class="image-container" onclick="toggleChile(this)">
 <img alt="Sonrisas" class="gummy-img img-normal" src="sonrisas.webp"/>
-<img alt="Gomita Enchilada" class="gummy-img img-spicy" src="sonrisas_enchiladas.webp"/>
+<img alt="Sonrisas Enchilada" class="gummy-img img-spicy" src="sonrisas_enchiladas.webp"/>
 </div>
 <div class="item-info">
 <h3>Sonrisas</h3>
@@ -1176,7 +1274,7 @@
 <div class="menu-item" data-product-id="dulce-tamarindo">
 <div class="image-container" onclick="toggleChile(this)">
 <img alt="Dulce Tamarindo" class="gummy-img img-normal" src="dulce_de_tamarindo.webp"/>
-<img alt="Gomita Enchilada" class="gummy-img img-spicy" src="dulce_de_tamarindo_enchilado.webp"/>
+<img alt="Dulce Tamarindo Enchilada" class="gummy-img img-spicy" src="dulce_de_tamarindo_enchilado.webp"/>
 </div>
 <div class="item-info">
 <h3>Dulce de Tamarindo</h3>
@@ -1185,8 +1283,8 @@
 </div>
 <div class="menu-item" data-product-id="aros-durazno">
 <div class="image-container" onclick="toggleChile(this)">
-<img alt="Aros Normal" class="gummy-img img-normal" src="aros_de_durazno.webp"/>
-<img alt="Aros Enchilados" class="gummy-img img-spicy" src="aros_de_durazno_enchilado.webp"/>
+<img alt="Aros de Durazno" class="gummy-img img-normal" src="aros_de_durazno.webp"/>
+<img alt="Aros de Durazno Enchilados" class="gummy-img img-spicy" src="aros_de_durazno_enchilado.webp"/>
 </div>
 <div class="item-info">
 <h3>Aros de Durazno</h3>
@@ -1196,7 +1294,7 @@
 <div class="menu-item" data-product-id="aros-manzana">
 <div class="image-container" onclick="toggleChile(this)">
 <img alt="Aros de Manzana" class="gummy-img img-normal" src="aros_de_manzana.webp"/>
-<img alt="Gusanos Enchilados" class="gummy-img img-spicy" src="aros_de_manzana_enchilados.webp"/>
+<img alt="Aros de Manzana Enchilados" class="gummy-img img-spicy" src="aros_de_manzana_enchilados.webp"/>
 </div>
 <div class="item-info">
 <h3>Aros de Manzano</h3>
@@ -1206,10 +1304,20 @@
 <div class="menu-item" data-product-id="aros-sandia">
 <div class="image-container" onclick="toggleChile(this)">
 <img alt="Aros de Sandia" class="gummy-img img-normal" src="aros_sandia.webp"/>
-<img alt="Gusanos Enchilados" class="gummy-img img-spicy" src="aros_sandia_enchilados.webp"/>
+<img alt="Aros de Sandia Enchilados" class="gummy-img img-spicy" src="aros_sandia_enchilados.webp"/>
 </div>
 <div class="item-info">
 <h3>Aros de Sandía</h3>
+<span class="price">$40.00</span>
+</div>
+</div>
+<div class="menu-item" data-product-id="aros-tropicales">
+<div class="image-container" onclick="toggleChile(this)">
+<img alt="Aros Tropicales" class="gummy-img img-normal" src="aros_tropicales.webp"/>
+<img alt="Aros Tropicales Enchilados" class="gummy-img img-spicy" src="aros_tropicales_enchilados.webp"/>
+</div>
+<div class="item-info">
+<h3>Aros Tropicales</h3>
 <span class="price">$40.00</span>
 </div>
 </div>
@@ -1611,12 +1719,12 @@ function lanzarPolvitoChile(contenedor) {
         /* ============================================
            SUPABASE — DISPONIBILIDAD + ADMIN
 
-           SOLO debes reemplazar estos 3 valores:
-           1) SUPABASE_URL
-           2) SUPABASE_PUBLISHABLE_KEY
-           3) ADMIN_EMAIL
+           Además de disponibilidad, el administrador controla:
+           - orden manual
+           - distintivo: ninguno / nuevo / temporada / importado
+           - presentación/modelo activo por producto
 
-           NUNCA pegues aquí service_role ni la contraseña.
+           Los agotados SIEMPRE se muestran al final del menú.
            ============================================ */
         (function () {
             'use strict';
@@ -1625,6 +1733,12 @@ function lanzarPolvitoChile(contenedor) {
             const SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_8yDZ9g9aakywv2MxGDZLoA_GEHvMwmw';
             const ADMIN_EMAIL = 'admin@thesweetloversclub.com';
             const REFRESH_MS = 30000;
+
+            const BADGE_ASSETS = {
+                nuevo: 'new.webp',
+                temporada: 'temporada.webp',
+                importado: 'producto-importado.webp'
+            };
 
             const configured =
                 SUPABASE_URL.startsWith('https://') &&
@@ -1661,6 +1775,8 @@ function lanzarPolvitoChile(contenedor) {
             let availabilityTimer = null;
             let lastTap = 0;
             let closing = false;
+            let adminProductsCache = [];
+            let variantsCache = [];
 
             function setMessage(text = '', type = '') {
                 if (!message) return;
@@ -1718,25 +1834,142 @@ function lanzarPolvitoChile(contenedor) {
                 closing = false;
             }
 
-            async function loadAvailability() {
-                if (!client) return;
+            function sortProducts(products) {
+                return [...products].sort((a, b) => {
+                    // Disponibles primero; agotados siempre hasta abajo.
+                    const availabilityDiff =
+                        Number(Boolean(b.disponible)) - Number(Boolean(a.disponible));
 
-                const { data, error } = await client
-                    .from('productos')
-                    .select('id,disponible');
+                    if (availabilityDiff !== 0) return availabilityDiff;
 
-                if (error || !Array.isArray(data)) {
-                    if (error) console.warn('Supabase disponibilidad:', error.message);
+                    const orderA = Number.isFinite(Number(a.orden)) ? Number(a.orden) : 9999;
+                    const orderB = Number.isFinite(Number(b.orden)) ? Number(b.orden) : 9999;
+
+                    if (orderA !== orderB) return orderA - orderB;
+                    return String(a.nombre || '').localeCompare(String(b.nombre || ''), 'es');
+                });
+            }
+
+            function getVariantsMap(variants) {
+                const map = new Map();
+
+                for (const variant of variants || []) {
+                    if (!map.has(variant.producto_id)) {
+                        map.set(variant.producto_id, []);
+                    }
+                    map.get(variant.producto_id).push(variant);
+                }
+
+                for (const list of map.values()) {
+                    list.sort((a, b) => (Number(a.orden) || 0) - (Number(b.orden) || 0));
+                }
+
+                return map;
+            }
+
+            function applyBadge(item, etiqueta) {
+                const imageContainer = item?.querySelector('.image-container');
+                if (!imageContainer) return;
+
+                let badge = imageContainer.querySelector('.badge-nuevo');
+                const asset = BADGE_ASSETS[etiqueta] || null;
+
+                if (!asset) {
+                    if (badge) badge.remove();
                     return;
                 }
 
-                for (const product of data) {
+                if (!badge) {
+                    badge = document.createElement('img');
+                    badge.className = 'badge-nuevo';
+                    badge.alt = '';
+                    imageContainer.prepend(badge);
+                }
+
+                badge.src = asset;
+                badge.alt =
+                    etiqueta === 'nuevo' ? 'Etiqueta Nuevo' :
+                    etiqueta === 'temporada' ? 'Etiqueta Temporada' :
+                    'Etiqueta Importado';
+            }
+
+            function applyActiveVariant(item, product, variantsMap) {
+                if (!item) return;
+
+                const variants = variantsMap.get(product.id) || [];
+                if (!variants.length) return;
+
+                const selected =
+                    variants.find(v => v.codigo === product.variante_activa) ||
+                    variants[0];
+
+                if (!selected) return;
+
+                const normal = item.querySelector('.img-normal');
+                const spicy = item.querySelector('.img-spicy');
+
+                if (normal && selected.imagen_normal) {
+                    normal.src = selected.imagen_normal;
+                }
+
+                if (spicy && selected.imagen_enchilada) {
+                    spicy.src = selected.imagen_enchilada;
+                }
+            }
+
+            function applyMenuState(products, variants) {
+                const grid = document.querySelector('.menu-grid');
+                if (!grid) return;
+
+                const variantsMap = getVariantsMap(variants);
+                const sorted = sortProducts(products);
+
+                for (const product of sorted) {
                     const item = document.querySelector(
                         `.menu-item[data-product-id="${CSS.escape(product.id)}"]`
                     );
+
                     if (!item) continue;
+
                     item.classList.toggle('agotado', product.disponible === false);
+                    applyBadge(item, product.etiqueta || 'ninguna');
+                    applyActiveVariant(item, product, variantsMap);
+
+                    // appendChild mueve el nodo existente; no recrea la tarjeta.
+                    // Así no se altera ningún otro comportamiento visual.
+                    grid.appendChild(item);
                 }
+            }
+
+            async function loadAvailability() {
+                if (!client) return;
+
+                const productsResult = await client
+                    .from('productos')
+                    .select('id,nombre,disponible,orden,etiqueta,variante_activa');
+
+                if (productsResult.error || !Array.isArray(productsResult.data)) {
+                    if (productsResult.error) {
+                        console.warn('Supabase menú:', productsResult.error.message);
+                    }
+                    return;
+                }
+
+                const variantsResult = await client
+                    .from('producto_variantes')
+                    .select('producto_id,codigo,nombre,imagen_normal,imagen_enchilada,orden')
+                    .order('orden', { ascending: true });
+
+                const variants =
+                    (!variantsResult.error && Array.isArray(variantsResult.data))
+                        ? variantsResult.data
+                        : [];
+
+                if (variantsResult.error) {
+                    console.warn('Supabase variantes:', variantsResult.error.message);
+                }
+
+                applyMenuState(productsResult.data, variants);
             }
 
             function startAvailabilityPolling() {
@@ -1764,22 +1997,49 @@ function lanzarPolvitoChile(contenedor) {
 
                 productsBox.innerHTML = '<p class="admin-subtitle">Cargando productos…</p>';
 
-                const { data, error } = await client
-                    .from('productos')
-                    .select('id,nombre,disponible')
-                    .order('nombre', { ascending: true });
+                const [productsResult, variantsResult] = await Promise.all([
+                    client
+                        .from('productos')
+                        .select('id,nombre,disponible,orden,etiqueta,variante_activa'),
+                    client
+                        .from('producto_variantes')
+                        .select('producto_id,codigo,nombre,imagen_normal,imagen_enchilada,orden')
+                        .order('orden', { ascending: true })
+                ]);
 
-                if (error) {
+                if (productsResult.error) {
                     productsBox.innerHTML = '';
-                    setMessage('No fue posible cargar los productos.', 'error');
+                    setMessage(
+                        'No fue posible cargar los productos. Ejecuta primero el SQL de configuración.',
+                        'error'
+                    );
                     return;
                 }
 
+                if (variantsResult.error) {
+                    productsBox.innerHTML = '';
+                    setMessage(
+                        'No fue posible cargar las presentaciones/modelos. Revisa la tabla producto_variantes.',
+                        'error'
+                    );
+                    return;
+                }
+
+                adminProductsCache = sortProducts(productsResult.data || []);
+                variantsCache = variantsResult.data || [];
+
+                const variantsMap = getVariantsMap(variantsCache);
+
                 productsBox.innerHTML = '';
 
-                for (const product of data || []) {
+                for (let i = 0; i < adminProductsCache.length; i++) {
+                    const product = adminProductsCache[i];
                     const row = document.createElement('div');
                     row.className = 'admin-product';
+                    row.dataset.id = product.id;
+
+                    const top = document.createElement('div');
+                    top.className = 'admin-product-top';
 
                     const name = document.createElement('div');
                     name.className = 'admin-product-name';
@@ -1791,10 +2051,130 @@ function lanzarPolvitoChile(contenedor) {
                     button.dataset.id = product.id;
                     button.dataset.available = String(Boolean(product.disponible));
                     renderStockButton(button, Boolean(product.disponible));
-
                     button.addEventListener('click', () => toggleProduct(button));
 
-                    row.append(name, button);
+                    top.append(name, button);
+
+                    const controls = document.createElement('div');
+                    controls.className = 'admin-product-controls';
+
+                    // ORDEN
+                    const orderWrap = document.createElement('div');
+                    orderWrap.className = 'admin-order-controls';
+
+                    const up = document.createElement('button');
+                    up.type = 'button';
+                    up.className = 'admin-order-btn';
+                    up.textContent = '↑';
+                    up.title = 'Subir en el orden';
+                    up.setAttribute('aria-label', `Subir ${product.nombre}`);
+                    up.addEventListener('click', () => moveProduct(product.id, -1));
+
+                    const down = document.createElement('button');
+                    down.type = 'button';
+                    down.className = 'admin-order-btn';
+                    down.textContent = '↓';
+                    down.title = 'Bajar en el orden';
+                    down.setAttribute('aria-label', `Bajar ${product.nombre}`);
+                    down.addEventListener('click', () => moveProduct(product.id, 1));
+
+                    // No permite cruzar manualmente entre "disponible" y "agotado";
+                    // esa separación la maneja automáticamente el menú.
+                    const sameGroup = adminProductsCache.filter(
+                        p => Boolean(p.disponible) === Boolean(product.disponible)
+                    );
+                    const groupIndex = sameGroup.findIndex(p => p.id === product.id);
+                    up.disabled = groupIndex <= 0;
+                    down.disabled = groupIndex < 0 || groupIndex >= sameGroup.length - 1;
+
+                    orderWrap.append(up, down);
+
+                    // ETIQUETA
+                    const badgeGroup = document.createElement('div');
+                    badgeGroup.className = 'admin-control-group';
+
+                    const badgeCaption = document.createElement('span');
+                    badgeCaption.className = 'admin-control-caption';
+                    badgeCaption.textContent = 'Distintivo';
+
+                    const badgeSelect = document.createElement('select');
+                    badgeSelect.className = 'admin-select';
+                    badgeSelect.setAttribute('aria-label', `Distintivo de ${product.nombre}`);
+
+                    const badgeOptions = [
+                        ['ninguna', 'Sin distintivo'],
+                        ['nuevo', 'Nuevo'],
+                        ['temporada', 'Temporada'],
+                        ['importado', 'Importado']
+                    ];
+
+                    for (const [value, label] of badgeOptions) {
+                        const option = document.createElement('option');
+                        option.value = value;
+                        option.textContent = label;
+                        badgeSelect.appendChild(option);
+                    }
+
+                    badgeSelect.value = product.etiqueta || 'ninguna';
+                    badgeSelect.addEventListener('change', () => {
+                        saveProductSettings(
+                            product.id,
+                            { etiqueta: badgeSelect.value },
+                            'Distintivo actualizado.'
+                        );
+                    });
+
+                    badgeGroup.append(badgeCaption, badgeSelect);
+
+                    // PRESENTACIÓN / MODELO
+                    const variantGroup = document.createElement('div');
+                    variantGroup.className = 'admin-control-group admin-variant-group';
+
+                    const variantCaption = document.createElement('span');
+                    variantCaption.className = 'admin-control-caption';
+                    variantCaption.textContent = 'Presentación';
+
+                    const variantSelect = document.createElement('select');
+                    variantSelect.className = 'admin-select';
+                    variantSelect.setAttribute('aria-label', `Presentación de ${product.nombre}`);
+
+                    const productVariants = variantsMap.get(product.id) || [];
+
+                    if (!productVariants.length) {
+                        const option = document.createElement('option');
+                        option.value = '';
+                        option.textContent = 'Sin modelos';
+                        variantSelect.appendChild(option);
+                        variantSelect.disabled = true;
+                    } else {
+                        for (const variant of productVariants) {
+                            const option = document.createElement('option');
+                            option.value = variant.codigo;
+                            option.textContent = variant.nombre;
+                            variantSelect.appendChild(option);
+                        }
+
+                        const activeCode =
+                            productVariants.some(v => v.codigo === product.variante_activa)
+                                ? product.variante_activa
+                                : productVariants[0].codigo;
+
+                        variantSelect.value = activeCode;
+                        variantSelect.disabled = productVariants.length <= 1;
+
+                        variantSelect.addEventListener('change', () => {
+                            saveProductSettings(
+                                product.id,
+                                { variante_activa: variantSelect.value },
+                                'Presentación actualizada.'
+                            );
+                        });
+                    }
+
+                    variantGroup.append(variantCaption, variantSelect);
+
+                    controls.append(orderWrap, badgeGroup, variantGroup);
+                    row.append(top, controls);
                     productsBox.appendChild(row);
                 }
             }
@@ -1803,11 +2183,34 @@ function lanzarPolvitoChile(contenedor) {
                 button.classList.toggle('available', available);
                 button.classList.toggle('soldout', !available);
                 button.dataset.available = String(available);
-                button.innerHTML = `<span class="stock-dot" aria-hidden="true"></span>${available ? 'Disponible' : 'Agotado'}`;
+                button.innerHTML =
+                    `<span class="stock-dot" aria-hidden="true"></span>${available ? 'Disponible' : 'Agotado'}`;
                 button.setAttribute(
                     'aria-label',
                     `${available ? 'Marcar como agotado' : 'Marcar como disponible'}`
                 );
+            }
+
+            async function saveProductSettings(id, patch, successText = 'Cambio guardado.') {
+                if (!client) return false;
+
+                const { error } = await client
+                    .from('productos')
+                    .update({
+                        ...patch,
+                        actualizado_en: new Date().toISOString()
+                    })
+                    .eq('id', id);
+
+                if (error) {
+                    setMessage('No se pudo guardar el cambio. Revisa permisos/RLS.', 'error');
+                    await loadAdminProducts();
+                    return false;
+                }
+
+                setMessage(successText, 'ok');
+                await loadAvailability();
+                return true;
             }
 
             async function toggleProduct(button) {
@@ -1821,25 +2224,82 @@ function lanzarPolvitoChile(contenedor) {
                 button.disabled = true;
                 renderStockButton(button, next);
 
-                const { error } = await client
-                    .from('productos')
-                    .update({
-                        disponible: next,
-                        actualizado_en: new Date().toISOString()
-                    })
-                    .eq('id', id);
+                const ok = await saveProductSettings(
+                    id,
+                    { disponible: next },
+                    next ? 'Producto disponible.' : 'Producto enviado al final como agotado.'
+                );
 
                 button.classList.remove('is-saving');
                 button.disabled = false;
 
-                if (error) {
+                if (!ok) {
                     renderStockButton(button, previous);
-                    setMessage('No se pudo guardar el cambio. Revisa permisos/RLS.', 'error');
                     return;
                 }
 
-                setMessage('Cambio guardado.', 'ok');
+                // Refresca el panel para que el agotado también se mueva al final ahí.
+                await loadAdminProducts();
+            }
+
+            async function moveProduct(id, direction) {
+                if (!client) return;
+
+                const sorted = sortProducts(adminProductsCache);
+                const currentIndex = sorted.findIndex(p => p.id === id);
+                if (currentIndex < 0) return;
+
+                const current = sorted[currentIndex];
+
+                // El orden se cambia únicamente dentro del mismo grupo de disponibilidad.
+                const sameGroup = sorted.filter(
+                    p => Boolean(p.disponible) === Boolean(current.disponible)
+                );
+                const groupIndex = sameGroup.findIndex(p => p.id === id);
+                const target = sameGroup[groupIndex + direction];
+
+                if (!target) return;
+
+                const currentOrder = Number(current.orden) || (currentIndex + 1);
+                const targetOrder = Number(target.orden) || (currentIndex + 1 + direction);
+
+                setMessage('Guardando orden…');
+
+                const first = await client
+                    .from('productos')
+                    .update({
+                        orden: targetOrder,
+                        actualizado_en: new Date().toISOString()
+                    })
+                    .eq('id', current.id);
+
+                if (first.error) {
+                    setMessage('No se pudo cambiar el orden.', 'error');
+                    return;
+                }
+
+                const second = await client
+                    .from('productos')
+                    .update({
+                        orden: currentOrder,
+                        actualizado_en: new Date().toISOString()
+                    })
+                    .eq('id', target.id);
+
+                if (second.error) {
+                    // Intenta revertir el primer cambio para no dejar el orden inconsistente.
+                    await client
+                        .from('productos')
+                        .update({ orden: currentOrder })
+                        .eq('id', current.id);
+
+                    setMessage('No se pudo completar el cambio de orden.', 'error');
+                    return;
+                }
+
+                setMessage('Orden actualizado.', 'ok');
                 await loadAvailability();
+                await loadAdminProducts();
             }
 
             /* Acceso oculto: doble toque/clic rápido en el logo del MENÚ */
@@ -1890,6 +2350,7 @@ function lanzarPolvitoChile(contenedor) {
 
             closeBtn?.addEventListener('click', () => closeAdmin({ signOut: true }));
             logoutBtn?.addEventListener('click', () => closeAdmin({ signOut: true }));
+
             refreshBtn?.addEventListener('click', async () => {
                 refreshBtn.disabled = true;
                 await loadAdminProducts();
@@ -1917,7 +2378,7 @@ function lanzarPolvitoChile(contenedor) {
                 if (!document.hidden && client) loadAvailability();
             });
         })();
-    </script>
+</script>
 
 </body>
 </html>
