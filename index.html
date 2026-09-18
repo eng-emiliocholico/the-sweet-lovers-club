@@ -1698,85 +1698,110 @@ function lanzarPolvitoChile(contenedor) {
                 mainTimer = window.setTimeout(playNext, delay);
             }
 
-            async function prepareGif(el) {
-                const img = el.querySelector('img');
-                if (!img) return;
+            function prepareGif(el) {
+    const img = el.querySelector('img');
+    if (!img) return false;
 
-                // Siempre reiniciamos el GIF desde el primer cuadro.
-                img.removeAttribute('src');
+    // Ocultar ANTES de iniciar el GIF.
+    el.classList.remove('is-visible');
+    el.classList.add('is-trim-hidden');
 
-                if (isTrimmedGif(el)) {
-                    el.classList.add('is-trim-hidden');
-                }
+    // Quitar el GIF anterior para reiniciarlo desde el frame 0.
+    img.removeAttribute('src');
 
-                // Fuerza al navegador a registrar la eliminación antes de recargar.
-                void img.offsetWidth;
+    // Forzar al navegador a procesar el cambio.
+    void img.offsetWidth;
 
-                img.src = img.dataset.src;
+    // IMPORTANTE:
+    // desde ESTA línea comienza el GIF y también deben
+    // comenzar a contar start / end / duration.
+    img.src = img.dataset.src;
 
-                try {
-                    await img.decode();
-                } catch (_) {
-                    // La carga normal del GIF es suficiente si decode() no está disponible.
-                }
-            }
+    return true;
+}
 
-            async function playNext() {
-                if (!running || document.hidden) return;
+            function playNext() {
+    if (!running || document.hidden) return;
 
-                clearGifTimers();
+    clearGifTimers();
 
-                // El GIF anterior con end=0 se mantiene durante el GAP.
-                // Aquí sí se elimina, justo antes de iniciar el siguiente.
-                hideAllExcept(null);
+    // Eliminar completamente cualquier GIF anterior.
+    hideAllExcept(null);
 
-                const current = appearances[index];
-                const timing = getTiming(current);
+    const current = appearances[index];
+    const timing = getTiming(current);
 
-                await prepareGif(current);
+    // =====================================================
+    // EL GIF COMIENZA EXACTAMENTE AQUÍ
+    // =====================================================
+    if (!prepareGif(current)) {
+        index = (index + 1) % appearances.length;
+        scheduleNext(GAP_TIME);
+        return;
+    }
 
-                if (!running || document.hidden) {
-                    unload(current);
-                    return;
-                }
+    currentVisible = current;
 
-                currentVisible = current;
+    // =====================================================
+    // CORTE INICIAL
+    // =====================================================
+    if (timing.start > 0) {
 
-                // Inicio individual.
-                if (timing.start > 0) {
-                    current.classList.add('is-trim-hidden');
+        // Durante "start" permanece completamente oculto.
+        current.classList.add('is-trim-hidden');
+        current.classList.remove('is-visible');
 
-                    revealTimer = window.setTimeout(() => {
-                        if (!running || document.hidden) return;
+        revealTimer = window.setTimeout(() => {
+            if (!running || document.hidden) return;
 
-                        current.classList.remove('is-trim-hidden');
-                        current.classList.add('is-visible');
-                    }, timing.start);
-                } else {
-                    current.classList.remove('is-trim-hidden');
-                    current.classList.add('is-visible');
-                }
+            current.classList.remove('is-trim-hidden');
+            current.classList.add('is-visible');
 
-                // Salida individual.
-                // MUY IMPORTANTE: si end === 0, NO EXISTE temporizador de corte.
-                if (timing.end > 0) {
-                    hideTimer = window.setTimeout(() => {
-                        current.classList.add('is-trim-hidden');
-                        current.classList.remove('is-visible');
-                    }, Math.max(timing.start, timing.duration - timing.end));
-                }
+        }, timing.start);
 
-                mainTimer = window.setTimeout(() => {
-    // Siempre ocultar y descargar el GIF
-    // cuando termina su duración real.
-    unload(current);
+    } else {
 
-    index = (index + 1) % appearances.length;
+        // Sin corte inicial.
+        current.classList.remove('is-trim-hidden');
+        current.classList.add('is-visible');
+    }
 
-    // Esperar antes de mostrar el siguiente GIF.
-    scheduleNext(GAP_TIME);
-}, timing.duration);
-            }
+
+    // =====================================================
+    // CORTE FINAL
+    // =====================================================
+    if (timing.end > 0) {
+
+        const hideAt = timing.duration - timing.end;
+
+        hideTimer = window.setTimeout(() => {
+            if (!running || document.hidden) return;
+
+            current.classList.add('is-trim-hidden');
+            current.classList.remove('is-visible');
+
+        }, hideAt);
+    }
+
+
+    // =====================================================
+    // FIN DE LA PRIMERA REPRODUCCIÓN
+    // =====================================================
+    mainTimer = window.setTimeout(() => {
+
+        // Aquí NO estamos aplicando "end".
+        //
+        // Simplemente quitamos el GIF exactamente cuando
+        // termina su primera reproducción para impedir
+        // que comience una segunda vuelta.
+        unload(current);
+
+        index = (index + 1) % appearances.length;
+
+        scheduleNext(GAP_TIME);
+
+    }, timing.duration);
+}
 
             function startGifCycle() {
                 if (running) return;
