@@ -1698,30 +1698,28 @@ function lanzarPolvitoChile(contenedor) {
                 mainTimer = window.setTimeout(playNext, delay);
             }
 
-            async function prepareGif(el) {
-                const img = el.querySelector('img');
-                if (!img) return;
+            function prepareGif(el) {
+    const img = el.querySelector('img');
+    if (!img) return;
 
-                // Siempre reiniciamos el GIF desde el primer cuadro.
-                img.removeAttribute('src');
+    // Reiniciar desde el primer frame.
+    img.removeAttribute('src');
 
-                if (isTrimmedGif(el)) {
-                    el.classList.add('is-trim-hidden');
-                }
+    // Si tiene recorte inicial/final, mantenerlo oculto
+    // ANTES de volver a iniciar el GIF.
+    if (isTrimmedGif(el)) {
+        el.classList.add('is-trim-hidden');
+        el.classList.remove('is-visible');
+    }
 
-                // Fuerza al navegador a registrar la eliminación antes de recargar.
-                void img.offsetWidth;
+    // Forzar reinicio real del recurso.
+    void img.offsetWidth;
 
-                img.src = img.dataset.src;
+    // El GIF comienza AQUÍ.
+    img.src = img.dataset.src;
+}
 
-                try {
-                    await img.decode();
-                } catch (_) {
-                    // La carga normal del GIF es suficiente si decode() no está disponible.
-                }
-            }
-
-            async function playNext() {
+            function playNext() {
                 if (!running || document.hidden) return;
 
                 clearGifTimers();
@@ -1733,7 +1731,7 @@ function lanzarPolvitoChile(contenedor) {
                 const current = appearances[index];
                 const timing = getTiming(current);
 
-                await prepareGif(current);
+                prepareGif(current);
 
                 if (!running || document.hidden) {
                     unload(current);
