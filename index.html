@@ -1698,25 +1698,34 @@ function lanzarPolvitoChile(contenedor) {
                 mainTimer = window.setTimeout(playNext, delay);
             }
 
-            function prepareGif(el) {
+            let gifPlayId = 0;
+
+function prepareGif(el) {
     const img = el.querySelector('img');
     if (!img) return;
 
-    // Reiniciar desde el primer frame.
+    // Primero ocultamos completamente el personaje.
+    el.classList.remove('is-visible');
+    el.classList.add('is-trim-hidden');
+
+    // Eliminamos la reproducción anterior.
     img.removeAttribute('src');
 
-    // Si tiene recorte inicial/final, mantenerlo oculto
-    // ANTES de volver a iniciar el GIF.
-    if (isTrimmedGif(el)) {
-        el.classList.add('is-trim-hidden');
-        el.classList.remove('is-visible');
-    }
-
-    // Forzar reinicio real del recurso.
+    // Forzamos al navegador a registrar que ya no existe el GIF.
     void img.offsetWidth;
 
-    // El GIF comienza AQUÍ.
-    img.src = img.dataset.src;
+    /*
+     * IMPORTANTE:
+     * Cada reproducción obtiene una URL diferente.
+     * Así evitamos que Chrome reutilice el GIF animado
+     * desde una posición anterior de la caché.
+     */
+    gifPlayId++;
+
+    const originalSrc = img.dataset.src;
+    const separator = originalSrc.includes('?') ? '&' : '?';
+
+    img.src = `${originalSrc}${separator}play=${gifPlayId}`;
 }
 
             function playNext() {
