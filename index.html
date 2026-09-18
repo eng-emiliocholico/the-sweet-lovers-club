@@ -543,10 +543,19 @@
 
         /* Los GIF inferiores siguen reproduciéndose, pero su primer y último
            segundo permanecen ocultos para disimular esos fragmentos. */
-        .gif-right-bottom.is-trim-hidden,
-        .gif-left-bottom.is-trim-hidden {
+        .character-gif.is-playing {
+            visibility: visible !important;
+        }
+
+        /*
+           RECORTE TEMPORAL REAL:
+           el GIF permanece renderizándose mientras está invisible.
+           No usamos visibility:hidden porque algunos navegadores pueden
+           detener/posponer la animación del GIF mientras está oculto.
+        */
+        .character-gif.is-playing.is-trim-hidden {
             opacity: 0 !important;
-            visibility: hidden !important;
+            visibility: visible !important;
             transition: none !important;
         }
 
@@ -1586,7 +1595,7 @@ function lanzarPolvitoChile(contenedor) {
 
         document.addEventListener('touchstart', function () {}, true);
 
-        // --- GIFs del menú: tiempos totalmente independientes ---
+        // --- GIFs del menú: controlador único y estable ---
         (function () {
             const appearances = [
                 document.getElementById('gifRightTop'),
@@ -1599,19 +1608,18 @@ function lanzarPolvitoChile(contenedor) {
             const FIRST_DELAY = 5000;
             const GAP_TIME = 6000;
 
-            /* ==========================================================
-               CONFIGURACIÓN INDIVIDUAL DE CADA GIF
-
-               duration = duración base antes de pasar al siguiente
-               start    = tiempo oculto al inicio
-               end      = tiempo oculto al final
-
-               REGLA ESPECIAL:
-               Si end = 0, NO se oculta al llegar a "duration".
-               Permanece visible durante GAP_TIME y solo desaparece
-               justo cuando va a comenzar el siguiente GIF.
-               ========================================================== */
-
+            /*
+             * ÚNICO LUGAR QUE NECESITAS MODIFICAR.
+             *
+             * duration = duración total de la reproducción
+             * start    = milisegundos que se reproducen INVISIBLES al inicio
+             * end      = milisegundos que se ocultan antes del final
+             *
+             * Ejemplo:
+             * start: 4000 => los primeros 4 segundos corren invisibles;
+             *                aparece directamente en el punto de 4 segundos.
+             * end: 0      => no se recorta nada del final.
+             */
             const GIF_TIMINGS = {
                 gifRightTop: {
                     duration: 10000,
@@ -1621,7 +1629,7 @@ function lanzarPolvitoChile(contenedor) {
 
                 gifRightBottom: {
                     duration: 10000,
-                    start: 4000,
+                    start: 1700,
                     end: 0
                 },
 
@@ -1634,162 +1642,149 @@ function lanzarPolvitoChile(contenedor) {
 
             let running = false;
             let index = 0;
-            let mainTimer = 0;
+            let sequenceToken = 0;
+
+            let nextTimer = 0;
             let revealTimer = 0;
             let hideTimer = 0;
-            let currentVisible = null;
+            let finishTimer = 0;
 
-            function clearGifTimers() {
-                clearTimeout(mainTimer);
+            function clearTimers() {
+                clearTimeout(nextTimer);
                 clearTimeout(revealTimer);
                 clearTimeout(hideTimer);
+                clearTimeout(finishTimer);
 
-                mainTimer = 0;
+                nextTimer = 0;
                 revealTimer = 0;
                 hideTimer = 0;
+                finishTimer = 0;
             }
 
             function getTiming(el) {
-                const config = GIF_TIMINGS[el.id] || {
-                    duration: 10000,
-                    start: 0,
-                    end: 0
-                };
+                const c = GIF_TIMINGS[el.id] || {};
+                const duration = Math.max(250, Number(c.duration) || 10000);
+                const start = Math.max(0, Math.min(Number(c.start) || 0, duration - 1));
+                const end = Math.max(0, Math.min(Number(c.end) || 0, duration - 1));
 
-                const duration = Math.max(250, Number(config.duration) || 10000);
-                const start = Math.max(0, Number(config.start) || 0);
-                const end = Math.max(0, Number(config.end) || 0);
-
-                return {
-                    duration,
-                    start: Math.min(start, Math.max(0, duration - 100)),
-                    end: Math.min(end, Math.max(0, duration - 100))
-                };
+                return { duration, start, end };
             }
 
-            function isTrimmedGif(el) {
-                const t = getTiming(el);
-                return t.start > 0 || t.end > 0;
-            }
-
-            function unload(el) {
+            function stopGif(el) {
                 if (!el) return;
 
-                el.classList.remove('is-visible', 'is-trim-hidden');
+                el.classList.remove('is-visible', 'is-trim-hidden', 'is-playing');
 
                 const img = el.querySelector('img');
                 if (img) {
                     img.removeAttribute('src');
                 }
-
-                if (currentVisible === el) {
-                    currentVisible = null;
-                }
             }
 
-            function hideAllExcept(except = null) {
-                appearances.forEach(el => {
-                    if (el !== except) unload(el);
-                });
+            function stopAll() {
+                appearances.forEach(stopGif);
+            }
+
+            function startGifFromZero(el) {
+                const img = el.querySelector('img');
+                if (!img) return false;
+
+                // Se mantiene renderizable desde el primer instante.
+                el.classList.remove('is-visible');
+                el.classList.add('is-playing', 'is-trim-hidden');
+
+                // Reinicio físico del elemento IMG.
+                const fresh = img.cloneNode(false);
+                fresh.removeAttribute('src');
+
+                // Mantener data-src y atributos originales.
+                if (!fresh.dataset.src && img.dataset.src) {
+                    fresh.dataset.src = img.dataset.src;
+                }
+
+                img.replaceWith(fresh);
+
+                // Forzar una nueva fase de layout antes de arrancar.
+                void el.offsetWidth;
+
+                // Al asignar src aquí empieza el reloj real del GIF.
+                fresh.src = fresh.dataset.src;
+
+                return true;
             }
 
             function scheduleNext(delay) {
-                clearTimeout(mainTimer);
-                mainTimer = window.setTimeout(playNext, delay);
+                clearTimeout(nextTimer);
+                nextTimer = window.setTimeout(playNext, delay);
             }
-
-            let gifPlayId = 0;
-
-function prepareGif(el) {
-    const img = el.querySelector('img');
-    if (!img) return;
-
-    // Primero ocultamos completamente el personaje.
-    el.classList.remove('is-visible');
-    el.classList.add('is-trim-hidden');
-
-    // Eliminamos la reproducción anterior.
-    img.removeAttribute('src');
-
-    // Forzamos al navegador a registrar que ya no existe el GIF.
-    void img.offsetWidth;
-
-    /*
-     * IMPORTANTE:
-     * Cada reproducción obtiene una URL diferente.
-     * Así evitamos que Chrome reutilice el GIF animado
-     * desde una posición anterior de la caché.
-     */
-    gifPlayId++;
-
-    const originalSrc = img.dataset.src;
-    const separator = originalSrc.includes('?') ? '&' : '?';
-
-    img.src = `${originalSrc}${separator}play=${gifPlayId}`;
-}
 
             function playNext() {
                 if (!running || document.hidden) return;
 
-                clearGifTimers();
+                clearTimers();
+                stopAll();
 
-                // El GIF anterior con end=0 se mantiene durante el GAP.
-                // Aquí sí se elimina, justo antes de iniciar el siguiente.
-                hideAllExcept(null);
-
+                const token = ++sequenceToken;
                 const current = appearances[index];
                 const timing = getTiming(current);
 
-                prepareGif(current);
-
-                if (!running || document.hidden) {
-                    unload(current);
+                if (!startGifFromZero(current)) {
+                    index = (index + 1) % appearances.length;
+                    scheduleNext(GAP_TIME);
                     return;
                 }
 
-                currentVisible = current;
-
-                // Inicio individual.
-                if (timing.start > 0) {
-                    current.classList.add('is-trim-hidden');
-
+                /*
+                 * IMPORTANTE:
+                 * Durante START el elemento NO usa visibility:hidden.
+                 * Sigue visible para el motor de render, pero opacity=0.
+                 * Así el GIF continúa avanzando hasta el frame correcto.
+                 */
+                if (timing.start <= 0) {
+                    current.classList.remove('is-trim-hidden');
+                    current.classList.add('is-visible');
+                } else {
                     revealTimer = window.setTimeout(() => {
-                        if (!running || document.hidden) return;
+                        if (!running || document.hidden || token !== sequenceToken) return;
 
                         current.classList.remove('is-trim-hidden');
                         current.classList.add('is-visible');
                     }, timing.start);
-                } else {
-                    current.classList.remove('is-trim-hidden');
-                    current.classList.add('is-visible');
                 }
 
-                // Salida individual.
-                // MUY IMPORTANTE: si end === 0, NO EXISTE temporizador de corte.
+                // Corte final independiente.
                 if (timing.end > 0) {
+                    const hideAt = Math.max(timing.start, timing.duration - timing.end);
+
                     hideTimer = window.setTimeout(() => {
-                        current.classList.add('is-trim-hidden');
+                        if (!running || token !== sequenceToken) return;
+
                         current.classList.remove('is-visible');
-                    }, Math.max(timing.start, timing.duration - timing.end));
+                        current.classList.add('is-trim-hidden');
+                    }, hideAt);
                 }
 
-                mainTimer = window.setTimeout(() => {
-                    const keepUntilNext = timing.end === 0;
+                /*
+                 * Al terminar duration:
+                 * - si end > 0, ya estaba oculto y lo descargamos.
+                 * - si end = 0, NO lo ocultamos aquí; se conserva hasta que
+                 *   vaya a arrancar el siguiente, igual que en tu versión
+                 *   que visualmente funcionaba bien.
+                 */
+                finishTimer = window.setTimeout(() => {
+                    if (!running || token !== sequenceToken) return;
 
-                    if (!keepUntilNext) {
-                        unload(current);
+                    if (timing.end > 0) {
+                        stopGif(current);
                     }
 
                     index = (index + 1) % appearances.length;
-
-                    // Si end=0, el GIF actual seguirá visible durante esta espera.
                     scheduleNext(GAP_TIME);
                 }, timing.duration);
             }
 
             function startGifCycle() {
                 if (running) return;
-
                 running = true;
                 scheduleNext(FIRST_DELAY);
             }
@@ -1801,9 +1796,9 @@ function prepareGif(el) {
             );
 
             document.addEventListener('visibilitychange', () => {
-                clearGifTimers();
-
-                appearances.forEach(unload);
+                clearTimers();
+                sequenceToken++;
+                stopAll();
 
                 if (!document.hidden && running) {
                     scheduleNext(GAP_TIME);
