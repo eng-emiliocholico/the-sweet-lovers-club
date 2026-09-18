@@ -521,7 +521,8 @@
             transition: opacity .42s ease, transform .68s cubic-bezier(.22,1,.36,1);
         }
 
-        .character-gif img {
+        .character-gif img,
+        .character-gif video {
             display: block;
             width: clamp(260px, 37.5vw, 475px);
             height: auto;
@@ -541,23 +542,11 @@
             will-change: transform, opacity;
         }
 
-        /* Los GIF inferiores siguen reproduciéndose, pero su primer y último
-           segundo permanecen ocultos para disimular esos fragmentos. */
-        .character-gif.is-playing {
-            visibility: visible !important;
-        }
-
         /*
-           RECORTE TEMPORAL REAL:
-           el GIF permanece renderizándose mientras está invisible.
-           No usamos visibility:hidden porque algunos navegadores pueden
-           detener/posponer la animación del GIF mientras está oculto.
+           Los personajes del menú ahora se reproducen como VIDEO.
+           start/end se aplican mediante currentTime, por lo que el recorte
+           es real y no depende de ocultar un GIF mientras avanza.
         */
-        .character-gif.is-playing.is-trim-hidden {
-            opacity: 0 !important;
-            visibility: visible !important;
-            transition: none !important;
-        }
 
         /* Superior derecha */
         .gif-right-top {
@@ -1490,25 +1479,24 @@
         </section>
     </div>
 
-    <!-- GIFS DEL PERSONAJE
+    <!-- PERSONAJES ANIMADOS
          Mantén estos 4 archivos en la misma carpeta del HTML:
-         personaje-saludo.gif       = portada/inicio
-         personaje-der-arriba.gif   = menú, esquina superior derecha
-         personaje-der-abajo.gif    = menú, esquina inferior derecha
-         personaje-izq-abajo.gif    = menú, esquina inferior izquierda
+         personaje-saludo.gif          = portada/inicio
+         personaje-der-arriba.webm     = menú, esquina superior derecha
+         personaje-der-abajo.webm      = menú, esquina inferior derecha
+         personaje-izq-abajo.webm      = menú, esquina inferior izquierda
 
-         Los 3 GIF del menú usan data-src para NO cargarse durante la portada.
-         Se cargan únicamente cuando les toca aparecer y se descargan del <img>
-         al ocultarse para reducir trabajo de animación/decodificación.
+         Los 3 personajes del menú son WebM para permitir recortes REALES:
+         start salta directamente al segundo indicado mediante currentTime.
     -->
 <div aria-hidden="true" class="character-gif gif-right-top" id="gifRightTop">
-<img alt="" data-src="personaje-der-arriba.gif" decoding="async"/>
+<video data-src="personaje-der-arriba.webm" muted playsinline preload="metadata"></video>
 </div>
 <div aria-hidden="true" class="character-gif gif-right-bottom" id="gifRightBottom">
-<img alt="" data-src="personaje-der-abajo.gif" decoding="async"/>
+<video data-src="personaje-der-abajo.webm" muted playsinline preload="metadata"></video>
 </div>
 <div aria-hidden="true" class="character-gif gif-left-bottom" id="gifLeftBottom">
-<img alt="" data-src="personaje-izq-abajo.gif" decoding="async"/>
+<video data-src="personaje-izq-abajo.webm" muted playsinline preload="metadata"></video>
 </div>
 
     <!-- Supabase JS v2 -->
@@ -1595,7 +1583,7 @@ function lanzarPolvitoChile(contenedor) {
 
         document.addEventListener('touchstart', function () {}, true);
 
-        // --- GIFs del menú: controlador único y estable ---
+        // --- PERSONAJES DEL MENÚ: RECORTE REAL POR TIEMPO ---
         (function () {
             const appearances = [
                 document.getElementById('gifRightTop'),
@@ -1609,18 +1597,23 @@ function lanzarPolvitoChile(contenedor) {
             const GAP_TIME = 6000;
 
             /*
-             * ÚNICO LUGAR QUE NECESITAS MODIFICAR.
+             * ESTE ES EL ÚNICO BLOQUE QUE TIENES QUE MODIFICAR.
              *
-             * duration = duración total de la reproducción
-             * start    = milisegundos que se reproducen INVISIBLES al inicio
-             * end      = milisegundos que se ocultan antes del final
+             * duration = duración total de referencia del archivo, en ms
+             * start    = milisegundos que se RECORTAN DEL INICIO
+             * end      = milisegundos que se RECORTAN DEL FINAL
              *
-             * Ejemplo:
-             * start: 4000 => los primeros 4 segundos corren invisibles;
-             *                aparece directamente en el punto de 4 segundos.
-             * end: 0      => no se recorta nada del final.
+             * IMPORTANTE:
+             * start YA NO significa "esperar oculto".
+             * start: 4000 significa:
+             *      -> saltar directamente al segundo 4.000
+             *      -> mostrar el personaje desde ese punto
+             *
+             * Por eso, si el video dura 10 s:
+             * start: 4000, end: 0
+             * reproduce VISUALMENTE del segundo 4.000 al 10.000.
              */
-            const GIF_TIMINGS = {
+            const CHARACTER_TIMINGS = {
                 gifRightTop: {
                     duration: 10000,
                     start: 0,
@@ -1642,75 +1635,64 @@ function lanzarPolvitoChile(contenedor) {
 
             let running = false;
             let index = 0;
-            let sequenceToken = 0;
-
+            let cycleToken = 0;
             let nextTimer = 0;
-            let revealTimer = 0;
-            let hideTimer = 0;
-            let finishTimer = 0;
+            let frameRequest = 0;
 
-            function clearTimers() {
+            function clearScheduling() {
                 clearTimeout(nextTimer);
-                clearTimeout(revealTimer);
-                clearTimeout(hideTimer);
-                clearTimeout(finishTimer);
-
                 nextTimer = 0;
-                revealTimer = 0;
-                hideTimer = 0;
-                finishTimer = 0;
+
+                if (frameRequest) {
+                    cancelAnimationFrame(frameRequest);
+                    frameRequest = 0;
+                }
             }
 
-            function getTiming(el) {
-                const c = GIF_TIMINGS[el.id] || {};
+            function timingFor(el) {
+                const c = CHARACTER_TIMINGS[el.id] || {};
                 const duration = Math.max(250, Number(c.duration) || 10000);
                 const start = Math.max(0, Math.min(Number(c.start) || 0, duration - 1));
-                const end = Math.max(0, Math.min(Number(c.end) || 0, duration - 1));
+                const end = Math.max(0, Math.min(Number(c.end) || 0, duration - start - 1));
 
-                return { duration, start, end };
+                return {
+                    duration,
+                    start,
+                    end,
+                    startSeconds: start / 1000,
+                    endSeconds: (duration - end) / 1000
+                };
             }
 
-            function stopGif(el) {
+            function mediaOf(el) {
+                return el ? el.querySelector('video') : null;
+            }
+
+            function hide(el) {
+                if (!el) return;
+                el.classList.remove('is-visible');
+            }
+
+            function stopVideo(el, unload = false) {
                 if (!el) return;
 
-                el.classList.remove('is-visible', 'is-trim-hidden', 'is-playing');
+                const video = mediaOf(el);
+                hide(el);
 
-                const img = el.querySelector('img');
-                if (img) {
-                    img.removeAttribute('src');
+                if (!video) return;
+
+                try { video.pause(); } catch (_) {}
+
+                if (unload) {
+                    video.removeAttribute('src');
+                    video.load();
                 }
             }
 
-            function stopAll() {
-                appearances.forEach(stopGif);
-            }
-
-            function startGifFromZero(el) {
-                const img = el.querySelector('img');
-                if (!img) return false;
-
-                // Se mantiene renderizable desde el primer instante.
-                el.classList.remove('is-visible');
-                el.classList.add('is-playing', 'is-trim-hidden');
-
-                // Reinicio físico del elemento IMG.
-                const fresh = img.cloneNode(false);
-                fresh.removeAttribute('src');
-
-                // Mantener data-src y atributos originales.
-                if (!fresh.dataset.src && img.dataset.src) {
-                    fresh.dataset.src = img.dataset.src;
-                }
-
-                img.replaceWith(fresh);
-
-                // Forzar una nueva fase de layout antes de arrancar.
-                void el.offsetWidth;
-
-                // Al asignar src aquí empieza el reloj real del GIF.
-                fresh.src = fresh.dataset.src;
-
-                return true;
+            function stopAll(except = null) {
+                appearances.forEach(el => {
+                    if (el !== except) stopVideo(el, false);
+                });
             }
 
             function scheduleNext(delay) {
@@ -1718,87 +1700,170 @@ function lanzarPolvitoChile(contenedor) {
                 nextTimer = window.setTimeout(playNext, delay);
             }
 
-            function playNext() {
+            function waitForMetadata(video) {
+                if (video.readyState >= 1 && Number.isFinite(video.duration)) {
+                    return Promise.resolve();
+                }
+
+                return new Promise((resolve, reject) => {
+                    const onLoaded = () => {
+                        cleanup();
+                        resolve();
+                    };
+
+                    const onError = () => {
+                        cleanup();
+                        reject(new Error('No se pudo cargar el video'));
+                    };
+
+                    const cleanup = () => {
+                        video.removeEventListener('loadedmetadata', onLoaded);
+                        video.removeEventListener('error', onError);
+                    };
+
+                    video.addEventListener('loadedmetadata', onLoaded, { once: true });
+                    video.addEventListener('error', onError, { once: true });
+                });
+            }
+
+            function seekExactly(video, seconds) {
+                const target = Math.max(0, Math.min(seconds, Math.max(0, video.duration - 0.02)));
+
+                if (Math.abs(video.currentTime - target) < 0.03) {
+                    video.currentTime = target;
+                    return Promise.resolve();
+                }
+
+                return new Promise((resolve) => {
+                    const finish = () => {
+                        video.removeEventListener('seeked', finish);
+                        resolve();
+                    };
+
+                    video.addEventListener('seeked', finish, { once: true });
+                    video.currentTime = target;
+                });
+            }
+
+            async function playNext() {
                 if (!running || document.hidden) return;
 
-                clearTimers();
-                stopAll();
+                clearScheduling();
 
-                const token = ++sequenceToken;
+                const token = ++cycleToken;
                 const current = appearances[index];
-                const timing = getTiming(current);
+                const video = mediaOf(current);
+                const timing = timingFor(current);
 
-                if (!startGifFromZero(current)) {
+                stopAll(current);
+                hide(current);
+
+                if (!video) {
                     index = (index + 1) % appearances.length;
                     scheduleNext(GAP_TIME);
                     return;
                 }
 
-                /*
-                 * IMPORTANTE:
-                 * Durante START el elemento NO usa visibility:hidden.
-                 * Sigue visible para el motor de render, pero opacity=0.
-                 * Así el GIF continúa avanzando hasta el frame correcto.
-                 */
-                if (timing.start <= 0) {
-                    current.classList.remove('is-trim-hidden');
-                    current.classList.add('is-visible');
-                } else {
-                    revealTimer = window.setTimeout(() => {
-                        if (!running || document.hidden || token !== sequenceToken) return;
-
-                        current.classList.remove('is-trim-hidden');
-                        current.classList.add('is-visible');
-                    }, timing.start);
-                }
-
-                // Corte final independiente.
-                if (timing.end > 0) {
-                    const hideAt = Math.max(timing.start, timing.duration - timing.end);
-
-                    hideTimer = window.setTimeout(() => {
-                        if (!running || token !== sequenceToken) return;
-
-                        current.classList.remove('is-visible');
-                        current.classList.add('is-trim-hidden');
-                    }, hideAt);
-                }
-
-                /*
-                 * Al terminar duration:
-                 * - si end > 0, ya estaba oculto y lo descargamos.
-                 * - si end = 0, NO lo ocultamos aquí; se conserva hasta que
-                 *   vaya a arrancar el siguiente, igual que en tu versión
-                 *   que visualmente funcionaba bien.
-                 */
-                finishTimer = window.setTimeout(() => {
-                    if (!running || token !== sequenceToken) return;
-
-                    if (timing.end > 0) {
-                        stopGif(current);
+                try {
+                    // Cargar el archivo solo si todavía no tiene src.
+                    if (!video.getAttribute('src')) {
+                        video.src = video.dataset.src;
+                        video.load();
                     }
 
+                    await waitForMetadata(video);
+                    if (!running || document.hidden || token !== cycleToken) return;
+
+                    /*
+                     * AQUÍ ESTÁ LA DIFERENCIA DEFINITIVA:
+                     * saltamos al tiempo solicitado ANTES de mostrarlo.
+                     */
+                    await seekExactly(video, timing.startSeconds);
+                    if (!running || document.hidden || token !== cycleToken) return;
+
+                    current.classList.add('is-visible');
+
+                    try {
+                        await video.play();
+                    } catch (_) {
+                        // Al estar muted + playsinline normalmente no se bloquea.
+                        // Si el navegador retrasa play, el siguiente frame vuelve a intentarlo.
+                        try { video.play(); } catch (_) {}
+                    }
+
+                    const realEnd = Math.min(
+                        timing.endSeconds,
+                        Number.isFinite(video.duration) ? video.duration : timing.endSeconds
+                    );
+
+                    const watch = () => {
+                        if (!running || document.hidden || token !== cycleToken) return;
+
+                        if (video.currentTime >= realEnd - 0.025 || video.ended) {
+                            video.pause();
+
+                            /*
+                             * end > 0 => se oculta en el punto de corte.
+                             * end = 0 => se queda en el último frame visible
+                             * durante GAP_TIME, como pedías.
+                             */
+                            if (timing.end > 0) {
+                                hide(current);
+                            } else {
+                                try {
+                                    video.currentTime = Math.max(
+                                        timing.startSeconds,
+                                        realEnd - 0.035
+                                    );
+                                } catch (_) {}
+                            }
+
+                            index = (index + 1) % appearances.length;
+                            scheduleNext(GAP_TIME);
+                            return;
+                        }
+
+                        frameRequest = requestAnimationFrame(watch);
+                    };
+
+                    frameRequest = requestAnimationFrame(watch);
+
+                } catch (error) {
+                    console.error('Error reproduciendo personaje:', error);
+                    hide(current);
                     index = (index + 1) % appearances.length;
                     scheduleNext(GAP_TIME);
-                }, timing.duration);
+                }
             }
 
-            function startGifCycle() {
+            function startCycle() {
                 if (running) return;
+
                 running = true;
+
+                // Precargar metadata para que los saltos sean inmediatos.
+                appearances.forEach(el => {
+                    const video = mediaOf(el);
+                    if (!video || video.getAttribute('src')) return;
+
+                    video.src = video.dataset.src;
+                    video.load();
+                });
+
                 scheduleNext(FIRST_DELAY);
             }
 
             window.addEventListener(
                 'sweetclub:opened',
-                startGifCycle,
+                startCycle,
                 { once: true }
             );
 
             document.addEventListener('visibilitychange', () => {
-                clearTimers();
-                sequenceToken++;
-                stopAll();
+                clearScheduling();
+                cycleToken++;
+
+                appearances.forEach(el => stopVideo(el, false));
 
                 if (!document.hidden && running) {
                     scheduleNext(GAP_TIME);
