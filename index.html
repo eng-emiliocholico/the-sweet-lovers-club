@@ -1767,17 +1767,15 @@ function lanzarPolvitoChile(contenedor) {
                 }
 
                 mainTimer = window.setTimeout(() => {
-                    const keepUntilNext = timing.end === 0;
+    // Siempre ocultar y descargar el GIF
+    // cuando termina su duración real.
+    unload(current);
 
-                    if (!keepUntilNext) {
-                        unload(current);
-                    }
+    index = (index + 1) % appearances.length;
 
-                    index = (index + 1) % appearances.length;
-
-                    // Si end=0, el GIF actual seguirá visible durante esta espera.
-                    scheduleNext(GAP_TIME);
-                }, timing.duration);
+    // Esperar antes de mostrar el siguiente GIF.
+    scheduleNext(GAP_TIME);
+}, timing.duration);
             }
 
             function startGifCycle() {
